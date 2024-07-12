@@ -3,6 +3,8 @@ const wpmDisplay = document.getElementById('wpm');
 const accuracyDisplay = document.getElementById('accuracy');
 const newTextBtn = document.getElementById('new-text-btn');
 const hiddenInput = document.getElementById('hidden-input');
+let textArray = []; // Initialize textArray
+
 
 let startTime;
 let stopTime;
@@ -32,6 +34,7 @@ function getRandomSentence() {
 function displayNewSentence() {
     const newSentence = getRandomSentence();
     textToTypeElement.textContent = newSentence;
+    textArray = newSentence.split(''); // Set textArray at the beginning
     typedText = '';
     errorEncountered = false;
     errorIndex = -1;
@@ -52,44 +55,40 @@ function startTypingTest(event) {
         return;
     }
 
-    console.log(`Key pressed: ${char}`);
-    console.log(`Typed text before processing: "${typedText}"`);
-
     if (!startTime) {
         startTime = new Date().getTime();
         timer = setInterval(calculateResults, 1000);
     }
 
-    if (char === 'Backspace') {
-        if (typedText.length > 0) {
-            typedText = typedText.slice(0, -1);
-            console.log(`Typed text after backspace: "${typedText}"`);
-            if (typedText.length <= errorIndex) {
-                errorEncountered = false;
-                errorIndex = -1;
-                console.log(`Error state reset`);
+    if (errorEncountered) {
+        if (char === 'Backspace') {
+            // Ensure the backspace operation stops at the error point
+            if (typedText.length > errorIndex) {
+                typedText = typedText.slice(0, errorIndex);
             }
+            errorEncountered = false;
+            errorIndex = -1;
         }
     } else {
-        const textArray = textToTypeElement.textContent.split('');
-        if (char === textArray[typedText.length]) {
-            typedText += char;
-            console.log(`Typed text after correct key: "${typedText}"`);
-            if (typedText.length === textArray.length) {
-                stopTime = new Date().getTime();
-                clearInterval(timer);
-                calculateResults();
+        if (char === 'Backspace') {
+            if (typedText.length > 0) {
+                typedText = typedText.slice(0, -1);
             }
         } else {
-            errorEncountered = true;
-            errorIndex = typedText.length;
-            console.log(`Error encountered at index: ${errorIndex}`);
+            if (char === textArray[typedText.length]) {
+                typedText += char;
+                if (typedText.length === textArray.length) {
+                    stopTime = new Date().getTime();
+                    clearInterval(timer);
+                    calculateResults();
+                }
+            } else {
+                errorEncountered = true;
+                errorIndex = typedText.length;
+            }
         }
     }
     updateTextDisplay();
-    console.log(`Typed text after processing: "${typedText}"`);
-    console.log(`Error encountered: ${errorEncountered}`);
-    console.log(`Error index: ${errorIndex}`);
 }
 
 function calculateResults() {
@@ -106,7 +105,6 @@ function calculateResults() {
 }
 
 function calculateAccuracy(typedText) {
-    const textArray = textToTypeElement.textContent.split('');
     let correctCharacters = 0;
 
     textArray.forEach((char, index) => {
@@ -119,7 +117,6 @@ function calculateAccuracy(typedText) {
 }
 
 function updateTextDisplay() {
-    const textArray = textToTypeElement.textContent.split('');
     let displayText = '';
 
     typedText.split('').forEach((char, index) => {
@@ -127,7 +124,12 @@ function updateTextDisplay() {
     });
 
     if (errorEncountered && typedText.length < textArray.length) {
-        displayText += `<span class="incorrect">${textArray[typedText.length]}</span>`;
+        const nextChar = textArray[typedText.length];
+        if (nextChar === ' ') {
+            displayText += `<span class="incorrect-space"></span>`;
+        } else {
+            displayText += `<span class="incorrect">${nextChar}</span>`;
+        }
         displayText += textArray.slice(typedText.length + 1).join('');
     } else {
         displayText += textArray.slice(typedText.length).join('');
@@ -139,6 +141,6 @@ function updateTextDisplay() {
 newTextBtn.addEventListener('click', displayNewSentence);
 document.addEventListener('keydown', startTypingTest);
 
-// Display the initial sentence and focus on hidden input
+// Display the initial sentence
 displayNewSentence();
 hiddenInput.focus();
