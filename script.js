@@ -1,10 +1,10 @@
 const textToTypeElement = document.getElementById('text-to-type');
+const hiddenInput = document.getElementById('hidden-input');
+const cursor = document.getElementById('cursor');
 const wpmDisplay = document.getElementById('wpm');
 const accuracyDisplay = document.getElementById('accuracy');
 const newTextBtn = document.getElementById('new-text-btn');
-const hiddenInput = document.getElementById('hidden-input');
 let textArray = []; // Initialize textArray
-
 
 let startTime;
 let stopTime;
@@ -15,15 +15,7 @@ let errorIndex = -1;
 
 const sentences = [
     "This is a typing test.",
-    "Type this text as fast as you can.",
-    "Practice makes perfect.",
-    "Improve your typing speed.",
-    "The quick brown fox jumps over the lazy dog.",
-    "JavaScript is a versatile programming language.",
-    "Coding can be fun and challenging.",
-    "Consistency is key to improvement.",
-    "Stay focused and keep practicing.",
-    "Errors help you learn and grow."
+    "Practice makes perfect."
 ];
 
 function getRandomSentence() {
@@ -44,6 +36,7 @@ function displayNewSentence() {
     wpmDisplay.textContent = 'WPM: 0';
     accuracyDisplay.textContent = 'Accuracy: 0%';
     updateTextDisplay();
+    updateCursorPosition();
     hiddenInput.focus();
 }
 
@@ -89,6 +82,7 @@ function startTypingTest(event) {
         }
     }
     updateTextDisplay();
+    updateCursorPosition();
 }
 
 function calculateResults() {
@@ -138,9 +132,32 @@ function updateTextDisplay() {
     textToTypeElement.innerHTML = displayText;
 }
 
+function updateCursorPosition() {
+    // Calculate the width of each character and position the cursor
+    const typedTextWidth = getTextWidth(typedText, window.getComputedStyle(textToTypeElement).font);
+    cursor.style.left = `${typedTextWidth}px`;
+    hiddenInput.style.left = `${typedTextWidth - 25}px`;
+}
+
+// Helper function to calculate the width of the text
+function getTextWidth(text, font) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.width;
+}
+
+// Ensure the input is focused when the user clicks anywhere in the container
+document.querySelector('.container').addEventListener('click', () => {
+    hiddenInput.focus();
+});
+
+// Ensure cursor is updated on window resize
+window.addEventListener('resize', updateCursorPosition);
+
 newTextBtn.addEventListener('click', displayNewSentence);
-document.addEventListener('keydown', startTypingTest);
+hiddenInput.addEventListener('keydown', startTypingTest);
 
 // Display the initial sentence
 displayNewSentence();
-hiddenInput.focus();
