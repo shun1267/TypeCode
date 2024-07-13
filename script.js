@@ -15,7 +15,15 @@ let errorIndex = -1;
 
 const sentences = [
     "This is a typing test.",
-    "Practice makes perfect."
+    "Type this text as fast as you can.",
+    "Practice makes perfect.",
+    "Improve your typing speed.",
+    "The quick brown fox jumps over the lazy dog.",
+    "JavaScript is a versatile programming language.",
+    "Coding can be fun and challenging.",
+    "Consistency is key to improvement.",
+    "Stay focused and keep practicing.",
+    "Errors help you learn and grow."
 ];
 
 function getRandomSentence() {
@@ -37,7 +45,6 @@ function displayNewSentence() {
     accuracyDisplay.textContent = 'Accuracy: 0%';
     updateTextDisplay();
     updateCursorPosition();
-    hiddenInput.focus();
 }
 
 function startTypingTest(event) {
@@ -133,11 +140,98 @@ function updateTextDisplay() {
 }
 
 function updateCursorPosition() {
-    // Calculate the width of each character and position the cursor
-    const typedTextWidth = getTextWidth(typedText, window.getComputedStyle(textToTypeElement).font);
-    cursor.style.left = `${typedTextWidth}px`;
-    hiddenInput.style.left = `${typedTextWidth - 25}px`;
+
+    const textElementWidth = textToTypeElement.clientWidth;
+    
+    //const singleLineHeight = getTextHeight('A', window.getComputedStyle(textToTypeElement).font);
+    const singleLineHeight = 60;
+
+    // Get the current word the user is typing
+    const words = typedText.split(' ');
+    const currentWord = words[words.length - 1];
+    
+    // Get the part of the text up to the current word
+    /*
+    console.log("");
+    console.log(typedText);
+    console.log(currentWord);
+    console.log(typedText.slice(0, typedText.length-currentWord.length-1));
+    console.log(textArray);
+    console.log(textArray.slice(0, words.length - 1).join(''));
+    */
+    textUpToCurrentWord = typedText;
+
+    if(typedText == "undefined") {
+        textUpToCurrentWord = "";
+    }
+
+    for(let i = typedText.length; i<textArray.length; ++i) {
+        if(textArray[i] == " ")
+            break;
+        else
+            textUpToCurrentWord += textArray[i];
+    }
+
+    // Calculate lines based on the full text up to the current word
+    const lines = calculateLines(textUpToCurrentWord, window.getComputedStyle(textToTypeElement).font, textElementWidth);
+
+    if (lines.length > 1) {
+        // The text has wrapped to new lines
+        const currentLineIndex = lines.length - 1;
+        //const currentLineText = lines[currentLineIndex].slice(-(count - currentWord.length-1));
+        count = 0;
+
+        console.log(lines);
+
+        for(i = 0; i<lines.length-1; ++i) {
+            count+=lines[i].length;
+            count+=1;
+        }
+
+        const currentLineText = typedText.slice(count);
+        console.log(currentLineText);
+
+        const currentLineWidth = getTextWidth(currentLineText, window.getComputedStyle(textToTypeElement).font);
+        cursor.style.top = `${currentLineIndex * singleLineHeight+50}px`;
+        hiddenInput.style.top = `${currentLineIndex * singleLineHeight+50}px`;
+        cursor.style.left = `${currentLineWidth}px`;
+        hiddenInput.style.left = `${currentLineWidth - 25}px`;
+    } else {
+        // The text is in a single line
+        const typedTextWidth = getTextWidth(typedText, window.getComputedStyle(textToTypeElement).font);
+        cursor.style.top = `50px`;
+        hiddenInput.style.top = `50px`;
+        cursor.style.left = `${typedTextWidth}px`;
+        hiddenInput.style.left = `${typedTextWidth - 25}px`;
+    }
 }
+
+/*
+function updateCursorPosition() {
+    const textElementWidth = textToTypeElement.clientWidth;
+    //const singleLineHeight = getTextHeight('A', window.getComputedStyle(textToTypeElement).font);
+    const singleLineHeight = 55;
+    const lines = calculateLines(typedText, window.getComputedStyle(textToTypeElement).font, textElementWidth);
+    
+    if (lines.length > 1) {
+        // The text has wrapped to new lines
+        const currentLineIndex = lines.length - 1;
+        const currentLineText = lines[currentLineIndex];
+        const currentLineWidth = getTextWidth(currentLineText, window.getComputedStyle(textToTypeElement).font);
+        console.log(currentLineText);
+        cursor.style.top = `${currentLineIndex * singleLineHeight+50}px`;
+        hiddenInput.style.top = `${currentLineIndex * singleLineHeight+50}px`;
+        cursor.style.left = `${currentLineWidth}px`;
+        hiddenInput.style.left = `${currentLineWidth - 25}px`;
+    } else {
+        // The text is in a single line
+        const typedTextWidth = getTextWidth(typedText, window.getComputedStyle(textToTypeElement).font);
+        cursor.style.top = `50px`;
+        hiddenInput.style.top = `50px`;
+        cursor.style.left = `${typedTextWidth}px`;
+        hiddenInput.style.left = `${typedTextWidth - 25}px`;
+    }
+}*/
 
 // Helper function to calculate the width of the text
 function getTextWidth(text, font) {
@@ -146,6 +240,35 @@ function getTextWidth(text, font) {
     context.font = font;
     const metrics = context.measureText(text);
     return metrics.width;
+}
+
+// Helper function to calculate the height of the text
+function getTextHeight(text, font) {
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+    context.font = font;
+    const metrics = context.measureText(text);
+    return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+}
+
+// Helper function to calculate the lines of text based on width
+function calculateLines(text, font, maxWidth) {
+    const words = text.split(' ');
+    const lines = [];
+    let currentLine = '';
+
+    words.forEach(word => {
+        const testLine = currentLine + word + ' ';
+        const testWidth = getTextWidth(testLine, font);
+        if (testWidth > maxWidth && currentLine.length > 0) {
+            lines.push(currentLine.trim());
+            currentLine = word + ' ';
+        } else {
+            currentLine = testLine;
+        }
+    });
+    lines.push(currentLine.trim());
+    return lines;
 }
 
 // Ensure the input is focused when the user clicks anywhere in the container
