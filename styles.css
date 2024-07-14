@@ -32,12 +32,12 @@ body {
 
 .top-right {
     position: absolute;
-    margin-bottom: 50px;
-    height: 800px;
     width: 100%;
+    height: 70%;
     display: flex;
     flex-direction: column;
     align-items: flex-end;
+    justify-content: center;
     gap: 10px;
 }
 
@@ -46,6 +46,17 @@ body {
     display: flex;
     gap: 20px;
     align-items: center; /* Align items to the center */
+}
+
+/* Media query for narrow screens */
+@media (max-width: 600px) {
+    .top-right {
+        flex-direction: column; /* Switch to column on narrow screens */
+    }
+
+    .options {
+        flex-direction: column; /* Switch to column on narrow screens */
+    }
 }
 
 .select-container {
@@ -75,7 +86,7 @@ select {
     margin-bottom: 20px;*/
     font-size: 16px;
     width: 100%;
-    height: 800px;
+    height: 65%;
     background-color: #272822;
     color: #f8f8f2;
     padding: 10px;
