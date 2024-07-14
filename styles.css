@@ -6,7 +6,7 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
-    background-color: #f0f0f0;
+    background-color: #2e2e2e; /* Set background color to grey */
 }
 
 .title {
@@ -14,6 +14,7 @@ body {
     padding: 10px;
     font-size: 24px;
     font-weight: bold;
+    color: #f8f8f2; /* Set title color to white for better contrast */
 }
 
 .container {
@@ -21,35 +22,110 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    width: 100%;
+    width: calc(50% + 100px);
     height: calc(100% - 40px); /* Adjusted height to account for the title */
-    background: white;
     padding: 20px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     box-sizing: border-box;
+    border-radius: 10px; /* Add border radius for better aesthetics */
+    position: relative; /* Add relative positioning to the container */
+}
+
+.top-right {
+    position: absolute;
+    margin-bottom: 50px;
+    height: 800px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 10px;
+}
+
+.options {
+    margin-bottom: 5px;
+    display: flex;
+    gap: 20px;
+    align-items: center; /* Align items to the center */
+}
+
+.select-container {
+    /*display: flex;*/
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+}
+
+label {
+    color: #f8f8f2;
+    font-size: 16px;
+}
+
+select {
+    padding: 5px 10px;
+    font-size: 16px;
+    background-color: #5c5c5c;
+    color: #f8f8f2;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 #test-text {
-    margin-bottom: 20px;
-    font-size: 50px;
-    position: relative;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    /*margin-top: 50px; Add margin-top to provide space for the options 
+    margin-bottom: 20px;*/
+    font-size: 16px;
+    width: 100%;
+    height: 800px;
+    background-color: #272822;
+    color: #f8f8f2;
+    padding: 10px;
+    overflow: auto;
+    /*border: 1px solid #ddd;*/
+    position: relative; /* Ensures that cursor and input are positioned relative to this element */
+    border-radius: 10px; /* Add border radius for better aesthetics */
+}
+
+#test-text::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+#test-text::-webkit-scrollbar-track {
+    background: #2e2e2e; /* Track color */
+    border-radius: 10px;
+}
+
+#test-text::-webkit-scrollbar-thumb {
+    background-color: #919191; /* Scrollbar color */
+    border-radius: 10px;
+    border: 3px solid #2e2e2e; /* Adjust the border to add padding around the thumb */
+}
+
+#test-text::-webkit-scrollbar-thumb:hover {
+    background-color: #6d6d6d; /* Hover color */
+}
+
+#text-to-type {
+    margin: 0; /* Reset margin */
+    padding: 0; /* Reset padding */
 }
 
 #hidden-input {
     position: absolute;
-    width: 50px;
-    height: 50px;
+    width: 1px;
+    height: 1px;
     opacity: 0;
+    top: 0;
+    left: 0;
 }
 
 #cursor {
     display: inline-block;
-    width: 1px;
-    height: 50px;
-    background-color: black;
+    width: 2px;
+    height: 1em;
+    /*background-color: #f8f8f2;*/
+    background-color: #00ff77;
+
     animation: blink 1s step-start infinite;
     position: absolute;
 }
@@ -63,7 +139,22 @@ body {
 #results {
     display: flex; /* Add flexbox to make children align side by side */
     justify-content: center; /* Center the items horizontally within the container */
-    gap: 20px; /* Add some space between the items */
+    color: #f8f8f2; /* Set text color to white for better contrast */
+    text-align: center;
+    font-family: sans-serif;
+}
+
+#cpm {
+    font-size:18px;
+    width: 90px;
+    margin: 0px;
+}
+
+#accuracy {
+    font-size:18px;
+    width: 150px;
+    margin: 0px;
+    margin-left: -10px;
 }
 
 .correct {
@@ -78,4 +169,30 @@ body {
     content: '\00a0'; /* Non-breaking space */
     text-decoration: underline;
     text-decoration-color: red;
+}
+
+.incorrect-next-line {
+    color: red;
+    background-color: red; /* Optional: Add a light red background for better visibility */
+}
+
+button {
+    padding: 5px 15px;
+    font-size: 18px;
+    background-color: #5c5c5c;
+    color: #f8f8f2;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #6d6d6d;
+}
+
+.button-wrapper {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    margin-top: 5px;
 }

@@ -7,19 +7,45 @@
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <div class="title">TypingCode Demo</div>
+    <div class="title">Typeapp</div>
     <div class="container">
-        <div id="test-text">
-            <input id="hidden-input" type="text" autofocus>
-            <span id="cursor"></span>
-            <p id="text-to-type"></p>
-        </div>
-        <div id="results">
-            <p id="wpm">WPM: 0</p>
-            <p id="accuracy">Accuracy: 0%</p>
+        <div class="top-right">
+            <div class="options">
+                <div class="select-container">
+                    <label for="difficulty">Difficulty:</label>
+                    <select id="difficulty">
+                        <option value="easy">Easy</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="hard">Hard</option>
+                    </select>
+                </div>
+                <div class="select-container">
+                    <label for="language">Language:</label>
+                    <select id="language">
+                        <option value="python" selected>Python</option>
+                        <option value="csharp">C#</option>
+                        <option value="go">Go</option>
+                        <option value="cpp">C++</option>
+                        <option value="java">Java</option>
+                        <option value="javascript">JavaScript</option>
+                    </select>
+                </div>
+                <div id="results">
+                    <p id="accuracy">Completion: 0%</p>
+                    <p id="cpm">CPM: 0</p>
+                </div>
+            </div>
+            <div id="test-text">
+                <textarea id="hidden-input" autofocus></textarea>
+                <span id="cursor"></span>
+                <pre id="text-to-type"></pre>
+            </div> 
+
+            <div class="button-wrapper">
+                <button id="new-text-btn">Get New Text</button>
+            </div>
         </div>
         
-        <button id="new-text-btn">Get New Text</button>
     </div>
     <script src="script.js"></script>
 </body>

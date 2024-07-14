@@ -1,10 +1,190 @@
 const textToTypeElement = document.getElementById('text-to-type');
 const hiddenInput = document.getElementById('hidden-input');
 const cursor = document.getElementById('cursor');
-const wpmDisplay = document.getElementById('wpm');
+const cpmDisplay = document.getElementById('cpm');
 const accuracyDisplay = document.getElementById('accuracy');
 const newTextBtn = document.getElementById('new-text-btn');
-let textArray = []; // Initialize textArray
+const difficultySelect = document.getElementById('difficulty');
+const languageSelect = document.getElementById('language');
+const testTextElement = document.getElementById('test-text');
+let textArray = [];
+
+const codeChunks = {
+    python: {
+        easy: [
+            `def hello_world():\n    print("Hello, world!")`,
+            `def greet():\n    print("Hello!")`,
+            `def say_hello():\n    print("Hi there!")`,
+            `def welcome():\n    print("Welcome!")`,
+            `def hi():\n    print("Hi!")`,
+            `def two_sum(nums, target):\n    for i in range(len(nums)):\n        for j in range(i+1, len(nums)):\n            if nums[i] + nums[j] == target:\n                return [i, j]`,
+            `def is_palindrome(s):\n    s = s.lower()\n    return s == s[::-1]`,
+            `def reverse_string(s):\n    return s[::-1]`,
+            `def fibonacci(n):\n    a, b = 0, 1\n    for _ in range(n):\n        a, b = b, a + b\n    return a`,
+            `def factorial(n):\n    if n == 0:\n        return 1\n    else:\n        return n * factorial(n-1)`
+        ],
+        medium: [
+            `class ComplexNumber:\n    def __init__(self, real, imag):\n        self.real = real\n        self.imag = imag\n\n    def __add__(self, other):\n        return ComplexNumber(self.real + other.real, self.imag + other.imag)\n\n    def __sub__(self, other):\n        return ComplexNumber(self.real - other.real, self.imag - other.imag)\n\n    def __mul__(self, other):\n        return ComplexNumber(self.real * other.real - self.imag * other.imag, self.real * other.imag + self.imag * other.real)\n\n    def __truediv__(self, other):\n        denom = other.real ** 2 + other.imag ** 2\n        return ComplexNumber((self.real * other.real + self.imag * other.imag) / denom, (self.imag * other.real - self.real * other.imag) / denom)\n\n    def __str__(self):\n        return f"{self.real} + {self.imag}i"\n\n    def conjugate(self):\n        return ComplexNumber(self.real, -self.imag)`,
+            `class Node:\n    def __init__(self, key):\n        self.left = None\n        self.right = None\n        self.val = key\n\nclass BinaryTree:\n    def __init__(self):\n        self.root = None\n\n    def insert(self, key):\n        if self.root is None:\n            self.root = Node(key)\n        else:\n            self._insert(self.root, key)\n\n    def _insert(self, node, key):\n        if key < node.val:\n            if node.left is None:\n                node.left = Node(key)\n            else:\n                self._insert(node.left, key)\n        else:\n            if node.right is None:\n                node.right = Node(key)\n            else:\n                self._insert(node.right, key)\n\n    def search(self, key):\n        return self._search(self.root, key)\n\n    def _search(self, node, key):\n        if node is None or node.val == key:\n            return node\n        if key < node.val:\n            return self._search(node.left, key)\n        return self._search(node.right, key)\n\n    def inorder(self, node):\n        if node:\n            self.inorder(node.left)\n            print(node.val)\n            self.inorder(node.right)`,
+            `class Graph:\n    def __init__(self):\n        self.graph = {}\n\n    def add_edge(self, u, v):\n        if u not in self.graph:\n            self.graph[u] = []\n        self.graph[u].append(v)\n\n    def bfs(self, s):\n        visited = [False] * (len(self.graph))\n        queue = []\n        queue.append(s)\n        visited[s] = True\n        while queue:\n            s = queue.pop(0)\n            print(s, end=" ")\n            for i in self.graph[s]:\n                if not visited[i]:\n                    queue.append(i)\n                    visited[i] = True`,
+            `class TrieNode:\n    def __init__(self):\n        self.children = {}\n        self.is_end_of_word = False\n\nclass Trie:\n    def __init__(self):\n        self.root = TrieNode()\n\n    def insert(self, word):\n        node = self.root\n        for char in word:\n            if char not in node.children:\n                node.children[char] = TrieNode()\n            node = node.children[char]\n        node.is_end_of_word = True\n\n    def search(self, word):\n        node = self.root\n        for char in word:\n            if char not in node.children:\n                return False\n            node = node.children[char]\n        return node.is_end_of_word\n\n    def starts_with(self, prefix):\n        node = self.root\n        for char in prefix:\n            if char not in node.children:\n                return False\n            node = node.children[char]\n        return True`,
+            `class LRUCache:\n    def __init__(self, capacity):\n        self.cache = {}\n        self.capacity = capacity\n        self.order = []\n\n    def get(self, key):\n        if key in self.cache:\n            self.order.remove(key)\n            self.order.append(key)\n            return self.cache[key]\n        return -1\n\n    def put(self, key, value):\n        if key in self.cache:\n            self.order.remove(key)\n        elif len(self.cache) == self.capacity:\n            oldest = self.order.pop(0)\n            del self.cache[oldest]\n        self.cache[key] = value\n        self.order.append(key)`,
+            `import tensorflow as tf\nfrom tensorflow.keras import layers, models\n\n# Load and prepare the MNIST dataset\nmnist = tf.keras.datasets.mnist\n(train_images, train_labels), (test_images, test_labels) = mnist.load_data()\n\n# Normalize the data\ntrain_images, test_images = train_images / 255.0, test_images / 255.0\n\n# Build the model\nmodel = models.Sequential([\n    layers.Flatten(input_shape=(28, 28)),\n    layers.Dense(128, activation='relu'),\n    layers.Dropout(0.2),\n    layers.Dense(10)\n])\n\n# Compile the model\nmodel.compile(optimizer='adam',\n              loss=tf.keras.losses.SparseCategoricalCrossentropy(from_logits=True),\n              metrics=['accuracy'])\n\n# Train the model\nmodel.fit(train_images, train_labels, epochs=5)\n\n# Evaluate the model\ntest_loss, test_acc = model.evaluate(test_images, test_labels, verbose=2)\nprint(f'\\nTest accuracy: {test_acc}')`,
+            `from flask import Flask, jsonify, request\n\napp = Flask(__name__)\n\n@app.route('/api', methods=['GET'])\ndef api():\n    data = {\n        'name': 'John Doe',\n        'age': 30,\n        'city': 'New York'\n    }\n    return jsonify(data)\n\n@app.route('/api', methods=['POST'])\ndef api_post():\n    data = request.get_json()\n    return jsonify(data)\n\nif __name__ == '__main__':\n    app.run(debug=True)`,
+            `import csv\n\nclass CSVProcessor:\n    def __init__(self, file_path):\n        self.file_path = file_path\n\n    def read_csv(self):\n        with open(self.file_path, mode='r') as file:\n            csv_reader = csv.DictReader(file)\n            for row in csv_reader:\n                print(row)\n\n    def write_csv(self, data):\n        with open(self.file_path, mode='w', newline='') as file:\n            fieldnames = data[0].keys()\n            writer = csv.DictWriter(file, fieldnames=fieldnames)\n            writer.writeheader()\n            writer.writerows(data)\n\nprocessor = CSVProcessor('example.csv')\ndata = [\n    {'name': 'John', 'age': 30, 'city': 'New York'},\n    {'name': 'Anna', 'age': 25, 'city': 'London'},\n    {'name': 'Mike', 'age': 32, 'city': 'San Francisco'}\n]\nprocessor.write_csv(data)\nprocessor.read_csv()`
+        ],
+        hard: [
+            `import random\n\nclass TicTacToe:\n    def __init__(self):\n        self.board = [' ' for _ in range(9)]\n        self.current_winner = None\n\n    def print_board(self):\n        for row in [self.board[i*3:(i+1)*3] for i in range(3)]:\n            print('| ' + ' | '.join(row) + ' |')\n\n    def available_moves(self):\n        return [i for i, spot in enumerate(self.board) if spot == ' ']\n\n    def empty_squares(self):\n        return ' ' in self.board\n\n    def num_empty_squares(self):\n        return self.board.count(' ')\n\n    def make_move(self, square, letter):\n        if self.board[square] == ' ':\n            self.board[square] = letter\n            if self.winner(square, letter):\n                self.current_winner = letter\n            return True\n        return False\n\n    def winner(self, square, letter):\n        row_ind = square // 3\n        row = self.board[row_ind*3:(row_ind+1)*3]\n        if all([spot == letter for spot in row]):\n            return True\n        col_ind = square % 3\n        column = [self.board[col_ind+i*3] for i in range(3)]\n        if all([spot == letter for spot in column]):\n            return True\n        if square % 2 == 0:\n            diagonal1 = [self.board[i] for i in [0, 4, 8]]\n            if all([spot == letter for spot in diagonal1]):\n                return True\n            diagonal2 = [self.board[i] for i in [2, 4, 6]]\n            if all([spot == letter for spot in diagonal2]):\n                return True\n        return False\n\ndef play(game, x_player, o_player, print_game=True):\n    if print_game:\n        game.print_board()\n    letter = 'X'\n    while game.empty_squares():\n        if game.num_empty_squares() == 0:\n            return None\n        if letter == 'O':\n            square = o_player.get_move(game)\n        else:\n            square = x_player.get_move(game)\n        if game.make_move(square, letter):\n            if print_game:\n                print(letter + f' makes a move to square {square}')\n                game.print_board()\n                print('')\n            if game.current_winner:\n                if print_game:\n                    print(letter + ' wins!')\n                return letter\n            letter = 'O' if letter == 'X' else 'X'\n        time.sleep(0.8)\n    if print_game:\n        print('It\'s a tie!')`,
+            `import numpy as np\nimport matplotlib.pyplot as plt\n\nclass LogisticRegression:\n    def __init__(self, lr=0.01, n_iters=1000):\n        self.lr = lr\n        self.n_iters = n_iters\n        self.weights = None\n        self.bias = None\n\n    def fit(self, X, y):\n        n_samples, n_features = X.shape\n        self.weights = np.zeros(n_features)\n        self.bias = 0\n        for _ in range(self.n_iters):\n            linear_model = np.dot(X, self.weights) + self.bias\n            y_predicted = self._sigmoid(linear_model)\n            dw = (1 / n_samples) * np.dot(X.T, (y_predicted - y))\n            db = (1 / n_samples) * np.sum(y_predicted - y)\n            self.weights -= self.lr * dw\n            self.bias -= self.lr * db\n\n    def predict(self, X):\n        linear_model = np.dot(X, self.weights) + self.bias\n        y_predicted = self._sigmoid(linear_model)\n        return [1 if i > 0.5 else 0 for i in y_predicted]\n\n    def _sigmoid(self, x):\n        return 1 / (1 + np.exp(-x))\n\nif __name__ == '__main__':\n    from sklearn.model_selection import train_test_split\n    from sklearn import datasets\n    bc = datasets.load_breast_cancer()\n    X, y = bc.data, bc.target\n    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1234)\n    reg = LogisticRegression(lr=0.0001, n_iters=1000)\n    reg.fit(X_train, y_train)\n    predictions = reg.predict(X_test)\n    def accuracy(y_true, y_pred):\n        return np.sum(y_true == y_pred) / len(y_true)\n    print(f'Accuracy: {accuracy(y_test, predictions)}')`,
+            `import torch\nimport torch.nn as nn\nimport torch.optim as optim\nimport torchvision\nimport torchvision.transforms as transforms\n\nclass SimpleCNN(nn.Module):\n    def __init__(self):\n        super(SimpleCNN, self).__init__()\n        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)\n        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)\n        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)\n        self.fc1 = nn.Linear(64 * 7 * 7, 128)\n        self.fc2 = nn.Linear(128, 10)\n\n    def forward(self, x):\n        x = self.pool(F.relu(self.conv1(x)))\n        x = self.pool(F.relu(self.conv2(x)))\n        x = x.view(-1, 64 * 7 * 7)\n        x = F.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x\n\ntransform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])\ntrainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)\ntrainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)\n\nnet = SimpleCNN()\ncriterion = nn.CrossEntropyLoss()\noptimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)\n\nfor epoch in range(2):\n    running_loss = 0.0\n    for i, data in enumerate(trainloader, 0):\n        inputs, labels = data\n        optimizer.zero_grad()\n        outputs = net(inputs)\n        loss = criterion(outputs, labels)\n        loss.backward()\n        optimizer.step()\n        running_loss += loss.item()\n        if i % 100 == 99:\n            print(f'[Epoch {epoch + 1}, Batch {i + 1}] loss: {running_loss / 100:.3f}')\n            running_loss = 0.0\n\nprint('Finished Training')\ntorch.save(net.state_dict(), './mnist_cnn.pth')`,
+            `import random\n\nclass TicTacToe:\n    def __init__(self):\n        self.board = [' ' for _ in range(9)]\n        self.current_winner = None\n\n    def print_board(self):\n        for row in [self.board[i*3:(i+1)*3] for i in range(3)]:\n            print('| ' + ' | '.join(row) + ' |')\n\n    def available_moves(self):\n        return [i for i, spot in enumerate(self.board) if spot == ' ']\n\n    def empty_squares(self):\n        return ' ' in self.board\n\n    def num_empty_squares(self):\n        return self.board.count(' ')\n\n    def make_move(self, square, letter):\n        if self.board[square] == ' ':\n            self.board[square] = letter\n            if self.winner(square, letter):\n                self.current_winner = letter\n            return True\n        return False\n\n    def winner(self, square, letter):\n        row_ind = square // 3\n        row = self.board[row_ind*3:(row_ind+1)*3]\n        if all([spot == letter for spot in row]):\n            return True\n        col_ind = square % 3\n        column = [self.board[col_ind+i*3] for i in range(3)]\n        if all([spot == letter for spot in column]):\n            return True\n        if square % 2 == 0:\n            diagonal1 = [self.board[i] for i in [0, 4, 8]]\n            if all([spot == letter for spot in diagonal1]):\n                return True\n            diagonal2 = [self.board[i] for i in [2, 4, 6]]\n            if all([spot == letter for spot in diagonal2]):\n                return True\n        return False\n\ndef play(game, x_player, o_player, print_game=True):\n    if print_game:\n        game.print_board()\n    letter = 'X'\n    while game.empty_squares():\n        if game.num_empty_squares() == 0:\n            return None\n        if letter == 'O':\n            square = o_player.get_move(game)\n        else:\n            square = x_player.get_move(game)\n        if game.make_move(square, letter):\n            if print_game:\n                print(letter + f' makes a move to square {square}')\n                game.print_board()\n                print('')\n            if game.current_winner:\n                if print_game:\n                    print(letter + ' wins!')\n                return letter\n            letter = 'O' if letter == 'X' else 'X'\n        time.sleep(0.8)\n    if print_game:\n        print('It\\'s a tie!')`,
+            `import numpy as np\nimport matplotlib.pyplot as plt\n\nclass LogisticRegression:\n    def __init__(self, lr=0.01, n_iters=1000):\n        self.lr = lr\n        self.n_iters = n_iters\n        self.weights = None\n        self.bias = None\n\n    def fit(self, X, y):\n        n_samples, n_features = X.shape\n        self.weights = np.zeros(n_features)\n        self.bias = 0\n        for _ in range(self.n_iters):\n            linear_model = np.dot(X, self.weights) + self.bias\n            y_predicted = self._sigmoid(linear_model)\n            dw = (1 / n_samples) * np.dot(X.T, (y_predicted - y))\n            db = (1 / n_samples) * np.sum(y_predicted - y)\n            self.weights -= self.lr * dw\n            self.bias -= self.lr * db\n\n    def predict(self, X):\n        linear_model = np.dot(X, self.weights) + self.bias\n        y_predicted = self._sigmoid(linear_model)\n        return [1 if i > 0.5 else 0 for i in y_predicted]\n\n    def _sigmoid(self, x):\n        return 1 / (1 + np.exp(-x))\n\nif __name__ == '__main__':\n    from sklearn.model_selection import train_test_split\n    from sklearn import datasets\n    bc = datasets.load_breast_cancer()\n    X, y = bc.data, bc.target\n    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=1234)\n    reg = LogisticRegression(lr=0.0001, n_iters=1000)\n    reg.fit(X_train, y_train)\n    predictions = reg.predict(X_test)\n    def accuracy(y_true, y_pred):\n        return np.sum(y_true == y_pred) / len(y_true)\n    print(f'Accuracy: {accuracy(y_test, predictions)}')`,
+            `import torch\nimport torch.nn as nn\nimport torch.optim as optim\nimport torchvision\nimport torchvision.transforms as transforms\n\nclass SimpleCNN(nn.Module):\n    def __init__(self):\n        super(SimpleCNN, self).__init__()\n        self.conv1 = nn.Conv2d(1, 32, kernel_size=3, stride=1, padding=1)\n        self.conv2 = nn.Conv2d(32, 64, kernel_size=3, stride=1, padding=1)\n        self.pool = nn.MaxPool2d(kernel_size=2, stride=2, padding=0)\n        self.fc1 = nn.Linear(64 * 7 * 7, 128)\n        self.fc2 = nn.Linear(128, 10)\n\n    def forward(self, x):\n        x = self.pool(torch.relu(self.conv1(x)))\n        x = self.pool(torch.relu(self.conv2(x)))\n        x = x.view(-1, 64 * 7 * 7)\n        x = torch.relu(self.fc1(x))\n        x = self.fc2(x)\n        return x\n\ntransform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])\ntrainset = torchvision.datasets.MNIST(root='./data', train=True, download=True, transform=transform)\ntrainloader = torch.utils.data.DataLoader(trainset, batch_size=64, shuffle=True)\n\nnet = SimpleCNN()\ncriterion = nn.CrossEntropyLoss()\noptimizer = optim.SGD(net.parameters(), lr=0.001, momentum=0.9)\n\nfor epoch in range(2):\n    running_loss = 0.0\n    for i, data in enumerate(trainloader, 0):\n        inputs, labels = data\n        optimizer.zero_grad()\n        outputs = net(inputs)\n        loss = criterion(outputs, labels)\n        loss.backward()\n        optimizer.step()\n        running_loss += loss.item()\n        if i % 100 == 99:\n            print(f'[Epoch {epoch + 1}, Batch {i + 1}] loss: {running_loss / 100:.3f}')\n            running_loss = 0.0\n\nprint('Finished Training')\ntorch.save(net.state_dict(), './mnist_cnn.pth')`
+        ]
+    },
+    javascript: {
+        easy: [
+            `function helloWorld() {\n    console.log("Hello, world!");\n}`,
+            `function greet() {\n    console.log("Hello!");\n}`,
+            `function sayHello() {\n    console.log("Hi there!");\n}`,
+            `function welcome() {\n    console.log("Welcome!");\n}`,
+            `function hi() {\n    console.log("Hi!");\n}`,
+            `function twoSum(nums, target) {\n    for (let i = 0; i < nums.length; i++) {\n        for (let j = i + 1; j < nums.length; j++) {\n            if (nums[i] + nums[j] === target) {\n                return [i, j];\n            }\n        }\n    }\n}`,
+            `function isPalindrome(s) {\n    s = s.toLowerCase();\n    return s === s.split('').reverse().join('');\n}`,
+            `function reverseString(s) {\n    return s.split('').reverse().join('');\n}`,
+            `function fibonacci(n) {\n    let a = 0, b = 1;\n    for (let i = 0; i < n; i++) {\n        [a, b] = [b, a + b];\n    }\n    return a;\n}`,
+            `function factorial(n) {\n    if (n === 0) {\n        return 1;\n    } else {\n        return n * factorial(n - 1);\n    }\n}`
+        ],
+        medium: [
+            `class ComplexNumber {\n    public double Real { get; }\n    public double Imag { get; }\n\n    public ComplexNumber(double real, double imag) {\n        Real = real;\n        Imag = imag;\n    }\n\n    public ComplexNumber Add(ComplexNumber other) {\n        return new ComplexNumber(Real + other.Real, Imag + other.Imag);\n    }\n\n    public ComplexNumber Sub(ComplexNumber other) {\n        return new ComplexNumber(Real - other.Real, Imag - other.Imag);\n    }\n\n    public ComplexNumber Mul(ComplexNumber other) {\n        return new ComplexNumber(Real * other.Real - Imag * other.Imag, Real * other.Imag + Imag * other.Real);\n    }\n\n    public ComplexNumber Div(ComplexNumber other) {\n        double denom = other.Real * other.Real + other.Imag * other.Imag;\n        return new ComplexNumber((Real * other.Real + Imag * other.Imag) / denom, (Imag * other.Real - Real * other.Imag) / denom);\n    }\n\n    public override string ToString() {\n        return $"\\{Real} + \\{Imag}i";\n    }\n\n    public ComplexNumber Conjugate() {\n        return new ComplexNumber(Real, -Imag);\n    }\n}`,
+            `class Node {\n    constructor(key) {\n        this.left = null;\n        this.right = null;\n        this.val = key;\n    }\n}\n\nclass BinaryTree {\n    constructor() {\n        this.root = null;\n    }\n\n    insert(key) {\n        if (this.root === null) {\n            this.root = new Node(key);\n        } else {\n            this._insert(this.root, key);\n        }\n    }\n\n    _insert(node, key) {\n        if (key < node.val) {\n            if (node.left === null) {\n                node.left = new Node(key);\n            } else {\n                this._insert(node.left, key);\n            }\n        } else {\n            if (node.right === null) {\n                node.right = new Node(key);\n            } else {\n                this._insert(node.right, key);\n            }\n        }\n    }\n\n    search(key) {\n        return this._search(this.root, key);\n    }\n\n    _search(node, key) {\n        if (node === null || node.val === key) {\n            return node;\n        }\n        if (key < node.val) {\n            return this._search(node.left, key);\n        }\n        return this._search(node.right, key);\n    }\n\n    inorder(node) {\n        if (node) {\n            this.inorder(node.left);\n            console.log(node.val);\n            this.inorder(node.right);\n        }\n    }\n}`,
+            `class Graph {\n    constructor() {\n        this.graph = {};\n    }\n\n    addEdge(u, v) {\n        if (!this.graph[u]) {\n            this.graph[u] = [];\n        }\n        this.graph[u].push(v);\n    }\n\n    bfs(s) {\n        const visited = new Array(Object.keys(this.graph).length).fill(false);\n        const queue = [];\n        queue.push(s);\n        visited[s] = true;\n        while (queue.length) {\n            s = queue.shift();\n            console.log(s);\n            for (const i of this.graph[s]) {\n                if (!visited[i]) {\n                    queue.push(i);\n                    visited[i] = true;\n                }\n            }\n        }\n    }\n}`,
+            `class TrieNode {\n    constructor() {\n        this.children = {};\n        this.isEndOfWord = false;\n    }\n}\n\nclass Trie {\n    constructor() {\n        this.root = new TrieNode();\n    }\n\n    insert(word) {\n        let node = this.root;\n        for (const char of word) {\n            if (!node.children[char]) {\n                node.children[char] = new TrieNode();\n            }\n            node = node.children[char];\n        }\n        node.isEndOfWord = true;\n    }\n\n    search(word) {\n        let node = this.root;\n        for (const char of word) {\n            if (!node.children[char]) {\n                return false;\n            }\n            node = node.children[char];\n        }\n        return node.isEndOfWord;\n    }\n\n    startsWith(prefix) {\n        let node = this.root;\n        for (const char of prefix) {\n            if (!node.children[char]) {\n                return false;\n            }\n            node = node.children[char];\n        }\n        return true;\n    }\n}`,
+            `class LRUCache {\n    constructor(capacity) {\n        this.cache = new Map();\n        this.capacity = capacity;\n    }\n\n    get(key) {\n        if (!this.cache.has(key)) {\n            return -1;\n        }\n        const value = this.cache.get(key);\n        this.cache.delete(key);\n        this.cache.set(key, value);\n        return value;\n    }\n\n    put(key, value) {\n        if (this.cache.has(key)) {\n            this.cache.delete(key);\n        }\n        this.cache.set(key, value);\n        if (this.cache.size > this.capacity) {\n            this.cache.delete(this.cache.keys().next().value);\n        }\n    }\n}`,
+            `const express = require('express');\nconst app = express();\nconst port = 3000;\n\napp.use(express.json());\n\napp.get('/api', (req, res) => {\n  res.json({\n    name: 'John Doe',\n    age: 30,\n    city: 'New York'\n  });\n});\n\napp.post('/api', (req, res) => {\n  res.json(req.body);\n});\n\napp.listen(port, () => {\n  console.log(\`Server running at http://localhost:\${port}/\`);\n});`,
+            `const fs = require('fs');\n\nfs.readFile('example.txt', 'utf8', (err, data) => {\n  if (err) {\n    console.error(err);\n    return;\n  }\n  console.log(data);\n});\n\nconst content = 'Some content!';\n\nfs.writeFile('example.txt', content, err => {\n  if (err) {\n    console.error(err);\n    return;\n  }\n  console.log('File written successfully');\n});`,
+            `const axios = require('axios');\n\naxios.get('https://api.example.com/data')\n  .then(response => {\n    console.log(response.data);\n  })\n  .catch(error => {\n    console.error('Error fetching data:', error);\n  });\n\naxios.post('https://api.example.com/data', {\n  name: 'John Doe',\n  age: 30\n})\n  .then(response => {\n    console.log('Data posted:', response.data);\n  })\n  .catch(error => {\n    console.error('Error posting data:', error);\n  });`
+        ],
+        hard: [
+            `const express = require('express');\nconst app = express();\nconst PORT = 3000;\n\n// Middleware to parse JSON bodies\napp.use(express.json());\n\n// Sample data\nlet todos = [\n    { id: 1, task: 'Learn Node.js', completed: false },\n    { id: 2, task: 'Build a REST API', completed: false },\n    { id: 3, task: 'Profit', completed: false }\n];\n\n// GET all todos\napp.get('/todos', (req, res) => {\n    res.json(todos);\n});\n\n// GET a single todo by ID\napp.get('/todos/:id', (req, res) => {\n    const todo = todos.find(t => t.id === parseInt(req.params.id));\n    if (todo) {\n        res.json(todo);\n    } else {\n        res.status(404).send('Todo not found');\n    }\n});\n\n// POST a new todo\napp.post('/todos', (req, res) => {\n    const newTodo = {\n        id: todos.length + 1,\n        task: req.body.task,\n        completed: false\n    };\n    todos.push(newTodo);\n    res.status(201).json(newTodo);\n});\n\n// PUT to update a todo\napp.put('/todos/:id', (req, res) => {\n    const todo = todos.find(t => t.id === parseInt(req.params.id));\n    if (todo) {\n        todo.task = req.body.task !== undefined ? req.body.task : todo.task;\n        todo.completed = req.body.completed !== undefined ? req.body.completed : todo.completed;\n        res.json(todo);\n    } else {\n        res.status(404).send('Todo not found');\n    }\n});\n\n// DELETE a todo\napp.delete('/todos/:id', (req, res) => {\n    const todoIndex = todos.findIndex(t => t.id === parseInt(req.params.id));\n    if (todoIndex > -1) {\n        todos.splice(todoIndex, 1);\n        res.status(204).send();\n    } else {\n        res.status(404).send('Todo not found');\n    }\n});\n\n// Start the server\napp.listen(PORT, () => {\n    console.log(\`Server is running on port \${PORT}\`);\n});`,
+            `document.addEventListener('DOMContentLoaded', () => {\n    const taskInput = document.getElementById('task-input');\n    const addButton = document.getElementById('add-button');\n    const taskList = document.getElementById('task-list');\n\n    addButton.addEventListener('click', () => {\n        const taskText = taskInput.value.trim();\n        if (taskText !== '') {\n            const listItem = document.createElement('li');\n            listItem.textContent = taskText;\n            listItem.addEventListener('click', () => {\n                listItem.classList.toggle('completed');\n            });\n            taskList.appendChild(listItem);\n            taskInput.value = '';\n        }\n    });\n\n    taskInput.addEventListener('keypress', (e) => {\n        if (e.key === 'Enter') {\n            addButton.click();\n        }\n    });\n\n    document.getElementById('clear-button').addEventListener('click', () => {\n        taskList.innerHTML = '';\n    });\n});\n\nconst style = document.createElement('style');\nstyle.textContent = \`\n    .completed {\n        text-decoration: line-through;\n        color: gray;\n    }\n\`;\ndocument.head.appendChild(style);\n\nconst html = \`\n    <input id="task-input" type="text" placeholder="New task">\n    <button id="add-button">Add Task</button>\n    <ul id="task-list"></ul>\n    <button id="clear-button">Clear All</button>\n\`;\ndocument.body.innerHTML = html;`,
+            `const canvas = document.getElementById('gameCanvas');\nconst ctx = canvas.getContext('2d');\n\nconst paddleHeight = 10;\nconst paddleWidth = 75;\nconst ballRadius = 10;\nlet x = canvas.width / 2;\nlet y = canvas.height - 30;\nlet dx = 2;\nlet dy = -2;\nlet paddleX = (canvas.width - paddleWidth) / 2;\nlet rightPressed = false;\nlet leftPressed = false;\n\nconst drawBall = () => {\n    ctx.beginPath();\n    ctx.arc(x, y, ballRadius, 0, Math.PI * 2);\n    ctx.fillStyle = '#0095DD';\n    ctx.fill();\n    ctx.closePath();\n};\n\nconst drawPaddle = () => {\n    ctx.beginPath();\n    ctx.rect(paddleX, canvas.height - paddleHeight, paddleWidth, paddleHeight);\n    ctx.fillStyle = '#0095DD';\n    ctx.fill();\n    ctx.closePath();\n};\n\nconst draw = () => {\n    ctx.clearRect(0, 0, canvas.width, canvas.height);\n    drawBall();\n    drawPaddle();\n    if (x + dx > canvas.width - ballRadius || x + dx < ballRadius) {\n        dx = -dx;\n    }\n    if (y + dy < ballRadius) {\n        dy = -dy;\n    } else if (y + dy > canvas.height - ballRadius) {\n        if (x > paddleX && x < paddleX + paddleWidth) {\n            dy = -dy;\n        } else {\n            document.location.reload();\n        }\n    }\n    x += dx;\n    y += dy;\n    if (rightPressed && paddleX < canvas.width - paddleWidth) {\n        paddleX += 7;\n    } else if (leftPressed && paddleX > 0) {\n        paddleX -= 7;\n    }\n    requestAnimationFrame(draw);\n};\n\ndocument.addEventListener('keydown', (e) => {\n    if (e.key === 'Right' || e.key === 'ArrowRight') {\n        rightPressed = true;\n    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {\n        leftPressed = true;\n    }\n});\n\ndocument.addEventListener('keyup', (e) => {\n    if (e.key === 'Right' || e.key === 'ArrowRight') {\n        rightPressed = false;\n    } else if (e.key === 'Left' || e.key === 'ArrowLeft') {\n        leftPressed = false;\n    }\n});\n\ndraw();\n\nconst html = \`<canvas id="gameCanvas" width="480" height="320"></canvas>\`;\ndocument.body.innerHTML = html;`
+        ]
+    },
+    java: {
+        easy: [
+            `public class HelloWorld {\n    public static void main(String[] args) {\n        System.out.println("Hello, world!");\n    }\n}`,
+            `public class Greet {\n    public static void main(String[] args) {\n        System.out.println("Hello!");\n    }\n}`,
+            `public class SayHello {\n    public static void main(String[] args) {\n        System.out.println("Hi there!");\n    }\n}`,
+            `public class Welcome {\n    public static void main(String[] args) {\n        System.out.println("Welcome!");\n    }\n}`,
+            `public class Hi {\n    public static void main(String[] args) {\n        System.out.println("Hi!");\n    }\n}`,
+            `public int[] twoSum(int[] nums, int target) {\n    for (int i = 0; i < nums.length; i++) {\n        for (int j = i + 1; j < nums.length; j++) {\n            if (nums[i] + nums[j] == target) {\n                return new int[]{i, j};\n            }\n        }\n    }\n    return new int[0];\n}`,
+            `public boolean isPalindrome(String s) {\n    s = s.toLowerCase();\n    int n = s.length();\n    for (int i = 0; i < n / 2; i++) {\n        if (s.charAt(i) != s.charAt(n - i - 1)) {\n            return false;\n        }\n    }\n    return true;\n}`,
+            `public String reverseString(String s) {\n    return new StringBuilder(s).reverse().toString();\n}`,
+            `public int fibonacci(int n) {\n    if (n <= 1) return n;\n    int a = 0, b = 1;\n    for (int i = 2; i <= n; i++) {\n        int temp = a;\n        a = b;\n        b = temp + b;\n    }\n    return b;\n}`,
+            `public int factorial(int n) {\n    if (n == 0) return 1;\n    return n * factorial(n - 1);\n}`
+        ],
+        medium: [
+            `class ComplexNumber {\n    private double real;\n    private double imag;\n\n    public ComplexNumber(double real, double imag) {\n        this.real = real;\n        this.imag = imag;\n    }\n\n    public ComplexNumber add(ComplexNumber other) {\n        return new ComplexNumber(this.real + other.real, this.imag + other.imag);\n    }\n\n    public ComplexNumber sub(ComplexNumber other) {\n        return new ComplexNumber(this.real - other.real, this.imag - other.imag);\n    }\n\n    public ComplexNumber mul(ComplexNumber other) {\n        return new ComplexNumber(this.real * other.real - this.imag * other.imag, this.real * other.imag + this.imag * other.real);\n    }\n\n    public ComplexNumber div(ComplexNumber other) {\n        double denom = other.real * other.real + other.imag * other.imag;\n        return new ComplexNumber((this.real * other.real + this.imag * other.imag) / denom, (this.imag * other.real - this.real * other.imag) / denom);\n    }\n\n    @Override\n    public String toString() {\n        return this.real + " + " + this.imag + "i";\n    }\n\n    public ComplexNumber conjugate() {\n        return new ComplexNumber(this.real, -this.imag);\n    }\n}`,
+            `class Node {\n    int val;\n    Node left, right;\n\n    public Node(int val) {\n        this.val = val;\n    }\n}\n\nclass BinaryTree {\n    Node root;\n\n    void insert(int key) {\n        root = insertRec(root, key);\n    }\n\n    Node insertRec(Node root, int key) {\n        if (root == null) {\n            root = new Node(key);\n            return root;\n        }\n        if (key < root.val)\n            root.left = insertRec(root.left, key);\n        else if (key > root.val)\n            root.right = insertRec(root.right, key);\n        return root;\n    }\n\n    void inorder() {\n        inorderRec(root);\n    }\n\n    void inorderRec(Node root) {\n        if (root != null) {\n            inorderRec(root.left);\n            System.out.println(root.val);\n            inorderRec(root.right);\n        }\n    }\n\n    Node search(int key) {\n        return searchRec(root, key);\n    }\n\n    Node searchRec(Node root, int key) {\n        if (root == null || root.val == key)\n            return root;\n        if (root.val > key)\n            return searchRec(root.left, key);\n        return searchRec(root.right, key);\n    }\n}`,
+            `class Graph {\n    private LinkedList<Integer> adj[];\n\n    Graph(int v) {\n        adj = new LinkedList[v];\n        for (int i = 0; i < v; ++i)\n            adj[i] = new LinkedList();\n    }\n\n    void addEdge(int v, int w) {\n        adj[v].add(w);\n    }\n\n    void BFS(int s) {\n        boolean visited[] = new boolean[adj.length];\n        LinkedList<Integer> queue = new LinkedList<Integer>();\n        visited[s] = true;\n        queue.add(s);\n        while (queue.size() != 0) {\n            s = queue.poll();\n            System.out.print(s + " ");\n            Iterator<Integer> i = adj[s].listIterator();\n            while (i.hasNext()) {\n                int n = i.next();\n                if (!visited[n]) {\n                    visited[n] = true;\n                    queue.add(n);\n                }\n            }\n        }\n    }\n}`,
+            `class TrieNode {\n    TrieNode[] children = new TrieNode[26];\n    boolean isEndOfWord;\n}\n\nclass Trie {\n    private TrieNode root;\n\n    public Trie() {\n        root = new TrieNode();\n    }\n\n    public void insert(String word) {\n        TrieNode node = root;\n        for (char c : word.toCharArray()) {\n            if (node.children[c - 'a'] == null) {\n                node.children[c - 'a'] = new TrieNode();\n            }\n            node = node.children[c - 'a'];\n        }\n        node.isEndOfWord = true;\n    }\n\n    public boolean search(String word) {\n        TrieNode node = root;\n        for (char c : word.toCharArray()) {\n            if (node.children[c - 'a'] == null) {\n                return false;\n            }\n            node = node.children[c - 'a'];\n        }\n        return node.isEndOfWord;\n    }\n\n    public boolean startsWith(String prefix) {\n        TrieNode node = root;\n        for (char c : prefix.toCharArray()) {\n            if (node.children[c - 'a'] == null) {\n                return false;\n            }\n            node = node.children[c - 'a'];\n        }\n        return true;\n    }\n}`,
+            `class LRUCache {\n    private final int capacity;\n    private final Map<Integer, Integer> map;\n    private final LinkedList<Integer> order;\n\n    public LRUCache(int capacity) {\n        this.capacity = capacity;\n        this.map = new HashMap<>();\n        this.order = new LinkedList<>();\n    }\n\n    public int get(int key) {\n        if (!map.containsKey(key)) {\n            return -1;\n        }\n        order.remove((Integer) key);\n        order.addFirst(key);\n        return map.get(key);\n    }\n\n    public void put(int key, int value) {\n        if (map.containsKey(key)) {\n            order.remove((Integer) key);\n        } else if (map.size() == capacity) {\n            int oldest = order.removeLast();\n            map.remove(oldest);\n        }\n        map.put(key, value);\n        order.addFirst(key);\n    }\n}`,
+            `import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.ResultSet;\nimport java.sql.Statement;\n\npublic class DatabaseExample {\n    public static void main(String[] args) {\n        try {\n            Connection conn = DriverManager.getConnection("jdbc:mysql://localhost:3306/mydatabase", "user", "password");\n            Statement stmt = conn.createStatement();\n            ResultSet rs = stmt.executeQuery("SELECT * FROM mytable");\n            while (rs.next()) {\n                System.out.println(rs.getString("column1") + ", " + rs.getString("column2"));\n            }\n            rs.close();\n            stmt.close();\n            conn.close();\n        } catch (Exception e) {\n            e.printStackTrace();\n        }\n    }\n}`,
+            `import java.io.BufferedReader;\nimport java.io.FileReader;\nimport java.io.IOException;\n\npublic class FileReadExample {\n    public static void main(String[] args) {\n        String filePath = "example.txt";\n        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {\n            String line;\n            while ((line = br.readLine()) != null) {\n                System.out.println(line);\n            }\n        } catch (IOException e) {\n            e.printStackTrace();\n        }\n    }\n}`,
+            `import java.util.HashMap;\nimport java.util.Map;\n\npublic class MapExample {\n    public static void main(String[] args) {\n        Map<String, Integer> map = new HashMap<>();\n        map.put("John", 30);\n        map.put("Anna", 25);\n        map.put("Mike", 32);\n        for (Map.Entry<String, Integer> entry : map.entrySet()) {\n            System.out.println(entry.getKey() + " is " + entry.getValue() + " years old.");\n        }\n    }\n}`
+            ],
+        hard: [
+            `import java.util.HashMap;\nimport java.util.Map;\nimport java.util.Scanner;\n\npublic class SimpleBankingApp {\n    private static Map<String, Double> accounts = new HashMap<>();\n\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        while (true) {\n            System.out.println("Welcome to the Simple Banking App!");\n            System.out.println("1. Create account");\n            System.out.println("2. Deposit money");\n            System.out.println("3. Withdraw money");\n            System.out.println("4. Check balance");\n            System.out.println("5. Exit");\n            System.out.print("Choose an option: ");\n            int choice = scanner.nextInt();\n            scanner.nextLine(); // Consume newline\n            switch (choice) {\n                case 1:\n                    createAccount(scanner);\n                    break;\n                case 2:\n                    depositMoney(scanner);\n                    break;\n                case 3:\n                    withdrawMoney(scanner);\n                    break;\n                case 4:\n                    checkBalance(scanner);\n                    break;\n                case 5:\n                    System.out.println("Goodbye!");\n                    scanner.close();\n                    return;\n                default:\n                    System.out.println("Invalid option. Please try again.");\n            }\n        }\n    }\n\n    private static void createAccount(Scanner scanner) {\n        System.out.print("Enter account name: ");\n        String name = scanner.nextLine();\n        if (accounts.containsKey(name)) {\n            System.out.println("Account already exists.");\n        } else {\n            accounts.put(name, 0.0);\n            System.out.println("Account created successfully.");\n        }\n    }\n\n    private static void depositMoney(Scanner scanner) {\n        System.out.print("Enter account name: ");\n        String name = scanner.nextLine();\n        if (accounts.containsKey(name)) {\n            System.out.print("Enter amount to deposit: ");\n            double amount = scanner.nextDouble();\n            scanner.nextLine(); // Consume newline\n            accounts.put(name, accounts.get(name) + amount);\n            System.out.println("Deposit successful.");\n        } else {\n            System.out.println("Account does not exist.");\n        }\n    }\n\n    private static void withdrawMoney(Scanner scanner) {\n        System.out.print("Enter account name: ");\n        String name = scanner.nextLine();\n        if (accounts.containsKey(name)) {\n            System.out.print("Enter amount to withdraw: ");\n            double amount = scanner.nextDouble();\n            scanner.nextLine(); // Consume newline\n            if (accounts.get(name) >= amount) {\n                accounts.put(name, accounts.get(name) - amount);\n                System.out.println("Withdrawal successful.");\n            } else {\n                System.out.println("Insufficient funds.");\n            }\n        } else {\n            System.out.println("Account does not exist.");\n        }\n    }\n\n    private static void checkBalance(Scanner scanner) {\n        System.out.print("Enter account name: ");\n        String name = scanner.nextLine();\n        if (accounts.containsKey(name)) {\n            System.out.println("Balance: " + accounts.get(name));\n        } else {\n            System.out.println("Account does not exist.");\n        }\n    }\n}`,
+            `import java.util.ArrayList;\nimport java.util.List;\nimport java.util.Random;\nimport java.util.Scanner;\n\npublic class SimpleChatbot {\n    private static List<String> responses = new ArrayList<>();\n\n    public static void main(String[] args) {\n        Scanner scanner = new Scanner(System.in);\n        initializeResponses();\n        System.out.println("Hello! I am a simple chatbot. Type 'exit' to end the conversation.");\n        while (true) {\n            System.out.print("You: ");\n            String input = scanner.nextLine();\n            if (input.equalsIgnoreCase("exit")) {\n                System.out.println("Goodbye!");\n                break;\n            }\n            String response = generateResponse(input);\n            System.out.println("Chatbot: " + response);\n        }\n        scanner.close();\n    }\n\n    private static void initializeResponses() {\n        responses.add("That's interesting! Tell me more.");\n        responses.add("Why do you think that?");\n        responses.add("How does that make you feel?");\n        responses.add("What do you mean by that?");\n        responses.add("Can you explain further?");\n        responses.add("I see. And then what happened?");\n        responses.add("How do you feel about that?");\n        responses.add("That sounds fascinating!");\n        responses.add("Could you give me an example?");\n        responses.add("That's quite a story!");\n    }\n\n    private static String generateResponse(String input) {\n        Random rand = new Random();\n        return responses.get(rand.nextInt(responses.size()));\n    }\n}`,
+            `import java.sql.Connection;\nimport java.sql.DriverManager;\nimport java.sql.PreparedStatement;\nimport java.sql.ResultSet;\nimport java.sql.SQLException;\n\npublic class DatabaseExample {\n    private static final String URL = "jdbc:mysql://localhost:3306/mydatabase";\n    private static final String USER = "root";\n    private static final String PASSWORD = "password";\n\n    public static void main(String[] args) {\n        try {\n            Connection connection = DriverManager.getConnection(URL, USER, PASSWORD);\n            System.out.println("Connected to the database.");\n\n            // Create table\n            String createTableSQL = "CREATE TABLE IF NOT EXISTS users " +\n                                     "(id INT AUTO_INCREMENT, " +\n                                     "name VARCHAR(255), " +\n                                     "email VARCHAR(255), " +\n                                     "PRIMARY KEY (id))";\n            PreparedStatement createTableStmt = connection.prepareStatement(createTableSQL);\n            createTableStmt.executeUpdate();\n            System.out.println("Table created.");\n\n            // Insert data\n            String insertSQL = "INSERT INTO users (name, email) VALUES (?, ?)";\n            PreparedStatement insertStmt = connection.prepareStatement(insertSQL);\n            insertStmt.setString(1, "John Doe");\n            insertStmt.setString(2, "john.doe@example.com");\n            insertStmt.executeUpdate();\n            System.out.println("Data inserted.");\n\n            // Query data\n            String querySQL = "SELECT * FROM users";\n            PreparedStatement queryStmt = connection.prepareStatement(querySQL);\n            ResultSet rs = queryStmt.executeQuery();\n            while (rs.next()) {\n                int id = rs.getInt("id");\n                String name = rs.getString("name");\n                String email = rs.getString("email");\n                System.out.println("ID: " + id + ", Name: " + name + ", Email: " + email);\n            }\n\n            // Update data\n            String updateSQL = "UPDATE users SET email = ? WHERE name = ?";\n            PreparedStatement updateStmt = connection.prepareStatement(updateSQL);\n            updateStmt.setString(1, "new.email@example.com");\n            updateStmt.setString(2, "John Doe");\n            updateStmt.executeUpdate();\n            System.out.println("Data updated.");\n\n            // Delete data\n            String deleteSQL = "DELETE FROM users WHERE name = ?";\n            PreparedStatement deleteStmt = connection.prepareStatement(deleteSQL);\n            deleteStmt.setString(1, "John Doe");\n            deleteStmt.executeUpdate();\n            System.out.println("Data deleted.");\n\n            connection.close();\n        } catch (SQLException e) {\n            e.printStackTrace();\n        }\n    }\n}`
+            ]
+    },
+    csharp: {
+        easy: [
+            `class Program {\n    static void Main(string[] args) {\n        Console.WriteLine("Hello, world!");\n    }\n}`,
+            `class Program {\n    static void Main(string[] args) {\n        Console.WriteLine("Hello!");\n    }\n}`,
+            `class Program {\n    static void Main(string[] args) {\n        Console.WriteLine("Hi there!");\n    }\n}`,
+            `class Program {\n    static void Main(string[] args) {\n        Console.WriteLine("Welcome!");\n    }\n}`,
+            `class Program {\n    static void Main(string[] args) {\n        Console.WriteLine("Hi!");\n    }\n}`,
+            `public int[] TwoSum(int[] nums, int target) {\n    for (int i = 0; i < nums.Length; i++) {\n        for (int j = i + 1; j < nums.Length; j++) {\n            if (nums[i] + nums[j] == target) {\n                return new int[] { i, j };\n            }\n        }\n    }\n    return new int[0];\n}`,
+            `public bool IsPalindrome(string s) {\n    s = s.ToLower();\n    int n = s.Length;\n    for (int i = 0; i < n / 2; i++) {\n        if (s[i] != s[n - i - 1]) {\n            return false;\n        }\n    }\n    return true;\n}`,
+            `public string ReverseString(string s) {\n    char[] charArray = s.ToCharArray();\n    Array.Reverse(charArray);\n    return new string(charArray);\n}`,
+            `public int Fibonacci(int n) {\n    if (n <= 1) return n;\n    int a = 0, b = 1;\n    for (int i = 2; i <= n; i++) {\n        int temp = a;\n        a = b;\n        b = temp + b;\n    }\n    return b;\n}`,
+            `public int Factorial(int n) {\n    if (n == 0) return 1;\n    return n * Factorial(n - 1);\n}`
+        ],
+        medium: [`class ComplexNumber {\n    public double Real { get; }\n    public double Imag { get; }\n\n    public ComplexNumber(double real, double imag) {\n        Real = real;\n        Imag = imag;\n    }\n\n    public ComplexNumber Add(ComplexNumber other) {\n        return new ComplexNumber(Real + other.Real, Imag + other.Imag);\n    }\n\n    public ComplexNumber Sub(ComplexNumber other) {\n        return new ComplexNumber(Real - other.Real, Imag - other.Imag);\n    }\n\n    public ComplexNumber Mul(ComplexNumber other) {\n        return new ComplexNumber(Real * other.Real - Imag * other.Imag, Real * other.Imag + Imag * other.Real);\n    }\n\n    public ComplexNumber Div(ComplexNumber other) {\n        double denom = other.Real * other.Real + other.Imag * other.Imag;\n        return new ComplexNumber((Real * other.Real + Imag * other.Imag) / denom, (Imag * other.Real - Real * other.Imag) / denom);\n    }\n\n    public override string ToString() {\n        return \$"{Real} + {Imag}i";\n    }\n\n    public ComplexNumber Conjugate() {\n        return new ComplexNumber(Real, -Imag);\n    }\n}`,
+            `class Node {\n    public int Val;\n    public Node Left, Right;\n\n    public Node(int val) {\n        Val = val;\n    }\n}\n\nclass BinaryTree {\n    public Node Root;\n\n    public void Insert(int key) {\n        Root = InsertRec(Root, key);\n    }\n\n    private Node InsertRec(Node root, int key) {\n        if (root == null) {\n            root = new Node(key);\n            return root;\n        }\n        if (key < root.Val)\n            root.Left = InsertRec(root.Left, key);\n        else if (key > root.Val)\n            root.Right = InsertRec(root.Right, key);\n        return root;\n    }\n\n    public void Inorder() {\n        InorderRec(Root);\n    }\n\n    private void InorderRec(Node root) {\n        if (root != null) {\n            InorderRec(root.Left);\n            Console.WriteLine(root.Val);\n            InorderRec(root.Right);\n        }\n    }\n\n    public Node Search(int key) {\n        return SearchRec(Root, key);\n    }\n\n    private Node SearchRec(Node root, int key) {\n        if (root == null || root.Val == key)\n            return root;\n        if (root.Val > key)\n            return SearchRec(root.Left, key);\n        return SearchRec(root.Right, key);\n    }\n}`,
+            `class Graph {\n    private readonly List<int>[] _adj;\n\n    public Graph(int v) {\n        _adj = new List<int>[v];\n        for (int i = 0; i < v; i++)\n            _adj[i] = new List<int>();\n    }\n\n    public void AddEdge(int v, int w) {\n        _adj[v].Add(w);\n    }\n\n    public void BFS(int s) {\n        var visited = new bool[_adj.Length];\n        var queue = new Queue<int>();\n        visited[s] = true;\n        queue.Enqueue(s);\n        while (queue.Count != 0) {\n            s = queue.Dequeue();\n            Console.Write(s + " ");\n            foreach (var next in _adj[s]) {\n                if (!visited[next]) {\n                    visited[next] = true;\n                    queue.Enqueue(next);\n                }\n            }\n        }\n    }\n}`,
+            `class TrieNode {\n    public readonly TrieNode[] Children = new TrieNode[26];\n    public bool IsEndOfWord;\n}\n\nclass Trie {\n    private readonly TrieNode _root;\n\n    public Trie() {\n        _root = new TrieNode();\n    }\n\n    public void Insert(string word) {\n        var node = _root;\n        foreach (var c in word) {\n            if (node.Children[c - 'a'] == null) {\n                node.Children[c - 'a'] = new TrieNode();\n            }\n            node = node.Children[c - 'a'];\n        }\n        node.IsEndOfWord = true;\n    }\n\n    public bool Search(string word) {\n        var node = _root;\n        foreach (var c in word) {\n            if (node.Children[c - 'a'] == null) {\n                return false;\n            }\n            node = node.Children[c - 'a'];\n        }\n        return node.IsEndOfWord;\n    }\n\n    public bool StartsWith(string prefix) {\n        var node = _root;\n        foreach (var c in prefix) {\n            if (node.Children[c - 'a'] == null) {\n                return false;\n            }\n            node = node.Children[c - 'a'];\n        }\n        return true;\n    }\n}`,
+            `class LRUCache {\n    private readonly int _capacity;\n    private readonly Dictionary<int, int> _cache;\n    private readonly LinkedList<int> _order;\n\n    public LRUCache(int capacity) {\n        _capacity = capacity;\n        _cache = new Dictionary<int, int>();\n        _order = new LinkedList<int>();\n    }\n\n    public int Get(int key) {\n        if (!_cache.ContainsKey(key)) {\n            return -1;\n        }\n        _order.Remove(key);\n        _order.AddFirst(key);\n        return _cache[key];\n    }\n\n    public void Put(int key, int value) {\n        if (_cache.ContainsKey(key)) {\n            _order.Remove(key);\n        } else if (_cache.Count == _capacity) {\n            int oldest = _order.Last.Value;\n            _order.RemoveLast();\n            _cache.Remove(oldest);\n        }\n        _cache[key] = value;\n        _order.AddFirst(key);\n    }\n}`,
+            `using System;\nusing System.Data.SqlClient;\n\nclass Program\n{\n    static void Main()\n    {\n        string connectionString = "Data Source=localhost;Initial Catalog=mydatabase;Integrated Security=True";\n        using (SqlConnection connection = new SqlConnection(connectionString))\n        {\n            connection.Open();\n            SqlCommand command = new SqlCommand("SELECT * FROM mytable", connection);\n            SqlDataReader reader = command.ExecuteReader();\n            while (reader.Read())\n            {\n                Console.WriteLine(reader["column1"] + ", " + reader["column2"]);\n            }\n            reader.Close();\n        }\n    }\n}`,
+            `using System;\nusing System.IO;\n\nclass Program\n{\n    static void Main()\n    {\n        string filePath = "example.txt";\n        using (StreamReader sr = new StreamReader(filePath))\n        {\n            string line;\n            while ((line = sr.ReadLine()) != null)\n            {\n                Console.WriteLine(line);\n            }\n        }\n    }\n}`,
+            `using System;\nusing System.Collections.Generic;\n\nclass Program\n{\n    static void Main()\n    {\n        Dictionary<string, int> dictionary = new Dictionary<string, int>();\n        dictionary["John"] = 30;\n        dictionary["Anna"] = 25;\n        dictionary["Mike"] = 32;\n        foreach (KeyValuePair<string, int> entry in dictionary)\n        {\n            Console.WriteLine(entry.Key + " is " + entry.Value + " years old.");\n        }\n    }\n}`
+            ],
+        hard: [ 
+            `using System;\nusing System.Collections.Generic;\n\nnamespace SimpleBankingApp\n{\n    class Program\n    {\n        static Dictionary<string, double> accounts = new Dictionary<string, double>();\n\n        static void Main(string[] args)\n        {\n            while (true)\n            {\n                Console.WriteLine("Welcome to the Simple Banking App!");\n                Console.WriteLine("1. Create account");\n                Console.WriteLine("2. Deposit money");\n                Console.WriteLine("3. Withdraw money");\n                Console.WriteLine("4. Check balance");\n                Console.WriteLine("5. Exit");\n                Console.Write("Choose an option: ");\n                int choice = int.Parse(Console.ReadLine());\n                switch (choice)\n                {\n                    case 1:\n                        CreateAccount();\n                        break;\n                    case 2:\n                        DepositMoney();\n                        break;\n                    case 3:\n                        WithdrawMoney();\n                        break;\n                    case 4:\n                        CheckBalance();\n                        break;\n                    case 5:\n                        Console.WriteLine("Goodbye!");\n                        return;\n                    default:\n                        Console.WriteLine("Invalid option. Please try again.");\n                        break;\n                }\n            }\n        }\n\n        static void CreateAccount()\n        {\n            Console.Write("Enter account name: ");\n            string name = Console.ReadLine();\n            if (accounts.ContainsKey(name))\n            {\n                Console.WriteLine("Account already exists.");\n            }\n            else\n            {\n                accounts[name] = 0.0;\n                Console.WriteLine("Account created successfully.");\n            }\n        }\n\n        static void DepositMoney()\n        {\n            Console.Write("Enter account name: ");\n            string name = Console.ReadLine();\n            if (accounts.ContainsKey(name))\n            {\n                Console.Write("Enter amount to deposit: ");\n                double amount = double.Parse(Console.ReadLine());\n                accounts[name] += amount;\n                Console.WriteLine("Deposit successful.");\n            }\n            else\n            {\n                Console.WriteLine("Account does not exist.");\n            }\n        }\n\n        static void WithdrawMoney()\n        {\n            Console.Write("Enter account name: ");\n            string name = Console.ReadLine();\n            if (accounts.ContainsKey(name))\n            {\n                Console.Write("Enter amount to withdraw: ");\n                double amount = double.Parse(Console.ReadLine());\n                if (accounts[name] >= amount)\n                {\n                    accounts[name] -= amount;\n                    Console.WriteLine("Withdrawal successful.");\n                }\n                else\n                {\n                    Console.WriteLine("Insufficient funds.");\n                }\n            }\n            else\n            {\n                Console.WriteLine("Account does not exist.");\n            }\n        }\n\n        static void CheckBalance()\n        {\n            Console.Write("Enter account name: ");\n            string name = Console.ReadLine();\n            if (accounts.ContainsKey(name))\n            {\n                Console.WriteLine("Balance: " + accounts[name]);\n            }\n            else\n            {\n                Console.WriteLine("Account does not exist.");\n            }\n        }\n    }\n}`,
+            `using System;\nusing System.Collections.Generic;\n\nnamespace SimpleChatbot\n{\n    class Program\n    {\n        static List<string> responses = new List<string>();\n\n        static void Main(string[] args)\n        {\n            InitializeResponses();\n            Console.WriteLine("Hello! I am a simple chatbot. Type 'exit' to end the conversation.");\n            while (true)\n            {\n                Console.Write("You: ");\n                string input = Console.ReadLine();\n                if (input.Equals("exit", StringComparison.OrdinalIgnoreCase))\n                {\n                    Console.WriteLine("Goodbye!");\n                    break;\n                }\n                string response = GenerateResponse(input);\n                Console.WriteLine("Chatbot: " + response);\n            }\n        }\n\n        static void InitializeResponses()\n        {\n            responses.Add("That's interesting! Tell me more.");\n            responses.Add("Why do you think that?");\n            responses.Add("How does that make you feel?");\n            responses.Add("What do you mean by that?");\n            responses.Add("Can you explain further?");\n            responses.Add("I see. And then what happened?");\n            responses.Add("How do you feel about that?");\n            responses.Add("That sounds fascinating!");\n            responses.Add("Could you give me an example?");\n            responses.Add("That's quite a story!");\n        }\n\n        static string GenerateResponse(string input)\n        {\n            Random rand = new Random();\n            return responses[rand.Next(responses.Count)];\n        }\n    }\n}`,
+            `using System;\nusing System.Data;\nusing System.Data.SqlClient;\n\nnamespace DatabaseExample\n{\n    class Program\n    {\n        private static readonly string connectionString = "Server=localhost;Database=mydatabase;User Id=myusername;Password=mypassword;";\n\n        static void Main(string[] args)\n        {\n            using (SqlConnection connection = new SqlConnection(connectionString))\n            {\n                connection.Open();\n                Console.WriteLine("Connected to the database.");\n\n                // Create table\n                string createTableSQL = "CREATE TABLE IF NOT EXISTS users " +\n                                         "(id INT IDENTITY(1,1) PRIMARY KEY, " +\n                                         "name NVARCHAR(50), " +\n                                         "email NVARCHAR(50))";\n                using (SqlCommand command = new SqlCommand(createTableSQL, connection))\n                {\n                    command.ExecuteNonQuery();\n                    Console.WriteLine("Table created.");\n                }\n\n                // Insert data\n                string insertSQL = "INSERT INTO users (name, email) VALUES (@name, @eamil)";\n                using (SqlCommand command = new SqlCommand(insertSQL, connection))\n                {\n                    command.Parameters.AddWithValue("@name", "John Doe");\n                    command.Parameters.AddWithValue("@email", "john.doe@example.com");\n                    command.ExecuteNonQuery();\n                    Console.WriteLine("Data inserted.");\n                }\n\n                // Query data\n                string querySQL = "SELECT * FROM users";\n                using (SqlCommand command = new SqlCommand(querySQL, connection))\n                using (SqlDataReader reader = command.ExecuteReader())\n                {\n                    while (reader.Read())\n                    {\n                        int id = reader.GetInt32(0);\n                        string name = reader.GetString(1);\n                        string email = reader.GetString(2);\n                        Console.WriteLine($"ID: {id}, Name: {name}, Email: {email}");\n                    }\n                }\n\n                // Update data\n                string updateSQL = "UPDATE users SET email = @email WHERE name = @name";\n                using (SqlCommand command = new SqlCommand(updateSQL, connection))\n                {\n                    command.Parameters.AddWithValue("@name", "John Doe");\n                    command.Parameters.AddWithValue("@email", "new.email@example.com");\n                    command.ExecuteNonQuery();\n                    Console.WriteLine("Data updated.");\n                }\n\n                // Delete data\n                string deleteSQL = "DELETE FROM users WHERE name = @name";\n                using (SqlCommand command = new SqlCommand(deleteSQL, connection))\n                {\n                    command.Parameters.AddWithValue("@name", "John Doe");\n                    command.ExecuteNonQuery();\n                    Console.WriteLine("Data deleted.");\n                }\n            }\n        }\n    }\n}`
+        ]
+    },
+    cpp: {
+        easy: [
+            `#include <iostream>\n\nint main() {\n    std::cout << "Hello, world!\\n";\n    return 0;\n}`,
+            `#include <iostream>\n\nint main() {\n    std::cout << "Hello!\\n";\n    return 0;\n}`,
+            `#include <iostream>\n\nint main() {\n    std::cout << "Hi there!\\n";\n    return 0;\n}`,
+            `#include <iostream>\n\nint main() {\n    std::cout << "Welcome!\\n";\n    return 0;\n}`,
+            `#include <iostream>\n\nint main() {\n    std::cout << "Hi!\\n";\n    return 0;\n}`,
+            `std::vector<int> twoSum(std::vector<int>& nums, int target) {\n    for (int i = 0; i < nums.size(); i++) {\n        for (int j = i + 1; j < nums.size(); j++) {\n            if (nums[i] + nums[j] == target) {\n                return {i, j};\n            }\n        }\n    }\n    return {};\n}`,
+            `bool isPalindrome(std::string s) {\n    std::transform(s.begin(), s.end(), s.begin(), ::tolower);\n    return std::equal(s.begin(), s.begin() + s.size() / 2, s.rbegin());\n}`,
+            `std::string reverseString(std::string s) {\n    std::reverse(s.begin(), s.end());\n    return s;\n}`,
+            `int fibonacci(int n) {\n    if (n <= 1) return n;\n    int a = 0, b = 1;\n    for (int i = 2; i <= n; i++) {\n        int temp = a;\n        a = b;\n        b = temp + b;\n    }\n    return b;\n}`,
+            `int factorial(int n) {\n    if (n == 0) return 1;\n    return n * factorial(n - 1);\n}`
+        ],
+        medium: [`class ComplexNumber {\npublic:\n    double real;\n    double imag;\n\n    ComplexNumber(double r, double i) : real(r), imag(i) {}\n\n    ComplexNumber add(const ComplexNumber& other) const {\n        return ComplexNumber(real + other.real, imag + other.imag);\n    }\n\n    ComplexNumber sub(const ComplexNumber& other) const {\n        return ComplexNumber(real - other.real, imag - other.imag);\n    }\n\n    ComplexNumber mul(const ComplexNumber& other) const {\n        return ComplexNumber(real * other.real - imag * other.imag, real * other.imag + imag * other.real);\n    }\n\n    ComplexNumber div(const ComplexNumber& other) const {\n        double denom = other.real * other.real + other.imag * other.imag;\n        return ComplexNumber((real * other.real + imag * other.imag) / denom, (imag * other.real - real * other.imag) / denom);\n    }\n\n    std::string toString() const {\n        return std::to_string(real) + " + " + std::to_string(imag) + "i";\n    }\n\n    ComplexNumber conjugate() const {\n        return ComplexNumber(real, -imag);\n    }\n};`,
+            `struct Node {\n    int val;\n    Node* left;\n    Node* right;\n\n    Node(int x) : val(x), left(nullptr), right(nullptr) {}\n};\n\nclass BinaryTree {\npublic:\n    Node* root;\n\n    BinaryTree() : root(nullptr) {}\n\n    void insert(int key) {\n        root = insertRec(root, key);\n    }\n\n    Node* insertRec(Node* root, int key) {\n        if (root == nullptr) {\n            return new Node(key);\n        }\n        if (key < root->val) {\n            root->left = insertRec(root->left, key);\n        } else if (key > root->val) {\n            root->right = insertRec(root->right, key);\n        }\n        return root;\n    }\n\n    void inorder() {\n        inorderRec(root);\n    }\n\n    void inorderRec(Node* root) {\n        if (root != nullptr) {\n            inorderRec(root->left);\n            std::cout << root->val << " ";\n            inorderRec(root->right);\n        }\n    }\n\n    Node* search(int key) {\n        return searchRec(root, key);\n    }\n\n    Node* searchRec(Node* root, int key) {\n        if (root == nullptr || root->val == key) {\n            return root;\n        }\n        if (root->val > key) {\n            return searchRec(root->left, key);\n        }\n        return searchRec(root->right, key);\n    }\n};`,
+            `class Graph {\nprivate:\n    std::vector<std::list<int>> adj;\npublic:\n    Graph(int v) {\n        adj.resize(v);\n    }\n\n    void addEdge(int v, int w) {\n        adj[v].push_back(w);\n    }\n\n    void BFS(int s) {\n        std::vector<bool> visited(adj.size(), false);\n        std::list<int> queue;\n        visited[s] = true;\n        queue.push_back(s);\n        while (!queue.empty()) {\n            s = queue.front();\n            std::cout << s << " ";\n            queue.pop_front();\n            for (auto adjecent : adj[s]) {\n                if (!visited[adjecent]) {\n                    visited[adjecent] = true;\n                    queue.push_back(adjecent);\n                }\n            }\n        }\n    }\n};`,
+            `class TrieNode {\npublic:\n    TrieNode* children[26];\n    bool isEndOfWord;\n\n    TrieNode() {\n        for (int i = 0; i < 26; i++)\n            children[i] = nullptr;\n        isEndOfWord = false;\n    }\n};\n\nclass Trie {\nprivate:\n    TrieNode* root;\n\npublic:\n    Trie() {\n        root = new TrieNode();\n    }\n\n    void insert(std::string word) {\n        TrieNode* node = root;\n        for (char c : word) {\n            int index = c - 'a';\n            if (node->children[index] == nullptr)\n                node->children[index] = new TrieNode();\n            node = node->children[index];\n        }\n        node->isEndOfWord = true;\n    }\n\n    bool search(std::string word) {\n        TrieNode* node = root;\n        for (char c : word) {\n            int index = c - 'a';\n            if (node->children[index] == nullptr)\n                return false;\n            node = node->children[index];\n        }\n        return node != nullptr && node->isEndOfWord;\n    }\n\n    bool startsWith(std::string prefix) {\n        TrieNode* node = root;\n        for (char c : prefix) {\n            int index = c - 'a';\n            if (node->children[index] == nullptr)\n                return false;\n            node = node->children[index];\n        }\n        return node != nullptr;\n    }\n};`,
+            `class LRUCache {\nprivate:\n    int capacity;\n    std::unordered_map<int, int> cache;\n    std::list<int> order;\n\npublic:\n    LRUCache(int capacity) : capacity(capacity) {}\n\n    int get(int key) {\n        if (cache.find(key) == cache.end())\n            return -1;\n        order.remove(key);\n        order.push_front(key);\n        return cache[key];\n    }\n\n    void put(int key, int value) {\n        if (cache.find(key) != cache.end()) {\n            order.remove(key);\n        } else if (cache.size() == capacity) {\n            int oldest = order.back();\n            order.pop_back();\n            cache.erase(oldest);\n        }\n        cache[key] = value;\n        order.push_front(key);\n    }\n};`,    
+            `#include <iostream>\n#include <fstream>\n#include <string>\n\nint main() {\n    std::ifstream infile("example.txt");\n    std::string line;\n    while (std::getline(infile, line)) {\n        std::cout << line << std::endl;\n    }\n    infile.close();\n\n    std::ofstream outfile("example.txt", std::ios::app);\n    outfile << "New line of text." << std::endl;\n    outfile.close();\n    return 0;\n}`,
+            `#include <iostream>\n#include <pqxx/pqxx>\n\nint main() {\n    try {\n        pqxx::connection C("dbname=mydatabase user=postgres password=secret");\n        pqxx::work W(C);\n        pqxx::result R = W.exec("SELECT * FROM mytable");\n        for (auto row : R) {\n            std::cout << row["column1"].c_str() << ", " << row["column2"].c_str() << std::endl;\n        }\n        W.commit();\n    } catch (const std::exception &e) {\n        std::cerr << e.what() << std::endl;\n        return 1;\n    }\n    return 0;\n}`,
+            `#include <iostream>\n#include <unordered_map>\n\nint main() {\n    std::unordered_map<std::string, int> map = {\n        {"John", 30},\n        {"Anna", 25},\n        {"Mike", 32}\n    };\n    for (const auto &pair : map) {\n        std::cout << pair.first << " is " << pair.second << " years old." << std::endl;\n    }\n    return 0;\n}`
+            ],
+        hard: [
+            `#include <iostream>\n#include <unordered_map>\n#include <string>\n\nclass SimpleBankingApp {\npublic:\n    void run() {\n        while (true) {\n            std::cout << "Welcome to the Simple Banking App!\\n";\n            std::cout << "1. Create account\\n";\n            std::cout << "2. Deposit money\\n";\n            std::cout << "3. Withdraw money\\n";\n            std::cout << "4. Check balance\\n";\n            std::cout << "5. Exit\\n";\n            std::cout << "Choose an option: ";\n            int choice;\n            std::cin >> choice;\n            std::cin.ignore(); // Consume newline\n            switch (choice) {\n                case 1:\n                    createAccount();\n                    break;\n                case 2:\n                    depositMoney();\n                    break;\n                case 3:\n                    withdrawMoney();\n                    break;\n                case 4:\n                    checkBalance();\n                    break;\n                case 5:\n                    std::cout << "Goodbye!\\n";\n                    return;\n                default:\n                    std::cout << "Invalid option. Please try again.\\n";\n            }\n        }\n    }\n\nprivate:\n    std::unordered_map<std::string, double> accounts;\n\n    void createAccount() {\n        std::cout << "Enter account name: ";\n        std::string name;\n        std::getline(std::cin, name);\n        if (accounts.find(name) != accounts.end()) {\n            std::cout << "Account already exists.\\n";\n        } else {\n            accounts[name] = 0.0;\n            std::cout << "Account created successfully.\\n";\n        }\n    }\n\n    void depositMoney() {\n        std::cout << "Enter account name: ";\n        std::string name;\n        std::getline(std::cin, name);\n        if (accounts.find(name) != accounts.end()) {\n            std::cout << "Enter amount to deposit: ";\n            double amount;\n            std::cin >> amount;\n            std::cin.ignore(); // Consume newline\n            accounts[name] += amount;\n            std::cout << "Deposit successful.\\n";\n        } else {\n            std::cout << "Account does not exist.\\n";\n        }\n    }\n\n    void withdrawMoney() {\n        std::cout << "Enter account name: ";\n        std::string name;\n        std::getline(std::cin, name);\n        if (accounts.find(name) != accounts.end()) {\n            std::cout << "Enter amount to withdraw: ";\n            double amount;\n            std::cin >> amount;\n            std::cin.ignore(); // Consume newline\n            if (accounts[name] >= amount) {\n                accounts[name] -= amount;\n                std::cout << "Withdrawal successful.\\n";\n            } else {\n                std::cout << "Insufficient funds.\\n";\n            }\n        } else {\n            std::cout << "Account does not exist.\\n";\n        }\n    }\n\n    void checkBalance() {\n        std::cout << "Enter account name: ";\n        std::string name;\n        std::getline(std::cin, name);\n        if (accounts.find(name) != accounts.end()) {\n            std::cout << "Balance: " << accounts[name] << "\\n";\n        } else {\n            std::cout << "Account does not exist.\\n";\n        }\n    }\n};\n\nint main() {\n    SimpleBankingApp app;\n    app.run();\n    return 0;\n}`,
+            `#include <iostream>\n#include <vector>\n#include <cstdlib>\n#include <ctime>\n\nclass SimpleChatbot {\npublic:\n    SimpleChatbot() {\n        initializeResponses();\n    }\n\n    void chat() {\n        std::cout << "Hello! I am a simple chatbot. Type 'exit' to end the conversation.\\n";\n        std::string input;\n        while (true) {\n            std::cout << "You: ";\n            std::getline(std::cin, input);\n            if (input == "exit") {\n                std::cout << "Goodbye!\\n";\n                break;\n            }\n            std::string response = generateResponse();\n            std::cout << "Chatbot: " << response << "\\n";\n        }\n    }\n\nprivate:\n    std::vector<std::string> responses;\n\n    void initializeResponses() {\n        responses.push_back("That's interesting! Tell me more.");\n        responses.push_back("Why do you think that?");\n        responses.push_back("How does that make you feel?");\n        responses.push_back("What do you mean by that?");\n        responses.push_back("Can you explain further?");\n        responses.push_back("I see. And then what happened?");\n        responses.push_back("How do you feel about that?");\n        responses.push_back("That sounds fascinating!");\n        responses.push_back("Could you give me an example?");\n        responses.push_back("That's quite a story!");\n    }\n\n    std::string generateResponse() {\n        std::srand(std::time(0));\n        int index = std::rand() % responses.size();\n        return responses[index];\n    }\n};\n\nint main() {\n    SimpleChatbot chatbot;\n    chatbot.chat();\n    return 0;\n}`,
+            `#include <iostream>\n#include <pqxx/pqxx>\n\nint main() {\n    try {\n        pqxx::connection C("dbname = testdb user = dbuser password = dbpassword hostaddr = 127.0.0.1 port = 5432");\n        if (C.is_open()) {\n            std::cout << "Opened database successfully: " << C.dbname() << "\\n";\n        } else {\n            std::cout << "Can't open database" << "\\n";\n            return 1;\n        }\n\n        // Create table\n        std::string sql = "CREATE TABLE IF NOT EXISTS USERS("  \n                          "ID SERIAL PRIMARY KEY     NOT NULL," \n                          "NAME           TEXT    NOT NULL," \n                          "EMAIL          TEXT     NOT NULL);";\n        pqxx::work W(C);\n        W.exec(sql);\n        W.commit();\n        std::cout << "Table created successfully" << "\\n";\n\n        // Insert data\n        sql = "INSERT INTO USERS (NAME, EMAIL) VALUES ('John Doe', 'john.doe@example.com');";\n        W.exec(sql);\n        W.commit();\n        std::cout << "Data inserted successfully" << "\\n";\n\n        // Query data\n        sql = "SELECT * from USERS;";\n        pqxx::nontransaction N(C);\n        pqxx::result R(N.exec(sql));\n        std::cout << "ID | NAME | EMAIL" << "\\n";\n        for (pqxx::result::const_iterator c = R.begin(); c != R.end(); ++c) {\n            std::cout << c[0].as<int>() << " | " << c[1].as<std::string>() << " | " << c[2].as<std::string>() << "\\n";\n        }\n\n        // Update data\n        sql = "UPDATE USERS set EMAIL = 'new.email@example.com' where NAME = 'John Doe';";\n        W.exec(sql);\n        W.commit();\n        std::cout << "Data updated successfully" << "\\n";\n\n        // Delete data\n        sql = "DELETE from USERS where NAME = 'John Doe';";\n        W.exec(sql);\n        W.commit();\n        std::cout << "Data deleted successfully" << "\\n";\n\n        C.disconnect();\n    } catch (const std::exception &e) {\n        std::cerr << e.what() << std::endl;\n        return 1;\n    }\n    return 0;\n}`
+        ]
+    },
+    go: {
+        easy: [
+            `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello, world!")\n}`,
+            `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hello!")\n}`,
+            `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hi there!")\n}`,
+            `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Welcome!")\n}`,
+            `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Hi!")\n}`,
+            `package main\n\nimport "fmt"\n\nfunc twoSum(nums []int, target int) []int {\n    for i := 0; i < len(nums); i++ {\n        for j := i + 1; j < len(nums); j++ {\n            if nums[i] + nums[j] == target {\n                return []int{i, j}\n            }\n        }\n    }\n    return nil\n}`,
+            `package main\n\nimport (\n    "fmt"\n    "strings"\n)\n\nfunc isPalindrome(s string) bool {\n    s = strings.ToLower(s)\n    for i := 0; i < len(s)/2; i++ {\n        if s[i] != s[len(s)-i-1] {\n            return false\n        }\n    }\n    return true\n}`,
+            `package main\n\nimport "fmt"\n\nfunc reverseString(s string) string {\n    runes := []rune(s)\n    for i, j := 0, len(runes)-1; i < j; i, j = i+1, j-1 {\n        runes[i], runes[j] = runes[j], runes[i]\n    }\n    return string(runes)\n}`,
+            `package main\n\nimport "fmt"\n\nfunc fibonacci(n int) int {\n    if n <= 1 {\n        return n\n    }\n    a, b := 0, 1\n    for i := 2; i <= n; i++ {\n        a, b = b, a+b\n    }\n    return b\n}`,
+            `package main\n\nimport "fmt"\n\nfunc factorial(n int) int {\n    if n == 0 {\n        return 1\n    }\n    return n * factorial(n-1)\n}`
+        ],
+        medium: [`package main\n\nimport "fmt"\n\ntype ComplexNumber struct {\n    real, imag float64\n}\n\nfunc (c ComplexNumber) Add(other ComplexNumber) ComplexNumber {\n    return ComplexNumber{c.real + other.real, c.imag + other.imag}\n}\n\nfunc (c ComplexNumber) Sub(other ComplexNumber) ComplexNumber {\n    return ComplexNumber{c.real - other.real, c.imag - other.imag}\n}\n\nfunc (c ComplexNumber) Mul(other ComplexNumber) ComplexNumber {\n    return ComplexNumber{c.real*other.real - c.imag*other.imag, c.real*other.imag + c.imag*other.real}\n}\n\nfunc (c ComplexNumber) Div(other ComplexNumber) ComplexNumber {\n    denom := other.real*other.real + other.imag*other.imag\n    return ComplexNumber{(c.real*other.real + c.imag*other.imag) / denom, (c.imag*other.real - c.real*other.imag) / denom}\n}\n\nfunc (c ComplexNumber) String() string {\n    return fmt.Sprintf("%f + %fi", c.real, c.imag)\n}\n\nfunc main() {\n    a := ComplexNumber{3, 4}\n    b := ComplexNumber{1, 2}\n    fmt.Println("a + b =", a.Add(b))\n    fmt.Println("a - b =", a.Sub(b))\n    fmt.Println("a * b =", a.Mul(b))\n    fmt.Println("a / b =", a.Div(b))\n}`,
+            `package main\n\nimport "fmt"\n\ntype Node struct {\n    val   int\n    left  *Node\n    right *Node\n}\n\ntype BinaryTree struct {\n    root *Node\n}\n\nfunc (t *BinaryTree) insert(val int) {\n    if t.root == nil {\n        t.root = &Node{val, nil, nil}\n    } else {\n        t.root.insert(val)\n    }\n}\n\nfunc (n *Node) insert(val int) {\n    if val < n.val {\n        if n.left == nil {\n            n.left = &Node{val, nil, nil}\n        } else {\n            n.left.insert(val)\n        }\n    } else {\n        if n.right == nil {\n            n.right = &Node{val, nil, nil}\n        } else {\n            n.right.insert(val)\n        }\n    }\n}\n\nfunc (t *BinaryTree) inorder(n *Node) {\n    if n != nil {\n        t.inorder(n.left)\n        fmt.Println(n.val)\n        t.inorder(n.right)\n    }\n}\n\nfunc (t *BinaryTree) search(val int) *Node {\n    return t.root.search(val)\n}\n\nfunc (n *Node) search(val int) *Node {\n    if n == nil || n.val == val {\n        return n\n    }\n    if val < n.val {\n        return n.left.search(val)\n    }\n    return n.right.search(val)\n}\n\nfunc main() {\n    tree := &BinaryTree{}\n    vals := []int{8, 3, 10, 1, 6, 14, 4, 7, 13}\n    for _, val := range vals {\n        tree.insert(val)\n    }\n    tree.inorder(tree.root)\n    fmt.Println("Search 6:", tree.search(6))\n    fmt.Println("Search 15:", tree.search(15))\n}`,
+            `package main\n\nimport (\n    "container/list"\n    "fmt"\n)\n\ntype Graph struct {\n    vertices int\n    adj      []*list.List\n}\n\nfunc NewGraph(v int) *Graph {\n    graph := &Graph{\n        vertices: v,\n        adj:      make([]*list.List, v),\n    }\n    for i := range graph.adj {\n        graph.adj[i] = list.New()\n    }\n    return graph\n}\n\nfunc (g *Graph) addEdge(v, w int) {\n    g.adj[v].PushBack(w)\n}\n\nfunc (g *Graph) BFS(s int) {\n    visited := make([]bool, g.vertices)\n    queue := list.New()\n    visited[s] = true\n    queue.PushBack(s)\n    for queue.Len() > 0 {\n        s = queue.Remove(queue.Front()).(int)\n        fmt.Printf("%d ", s)\n        for e := g.adj[s].Front(); e != nil; e = e.Next() {\n            n := e.Value.(int)\n            if !visited[n] {\n                visited[n] = true\n                queue.PushBack(n)\n            }\n        }\n    }\n}\n\nfunc main() {\n    g := NewGraph(4)\n    g.addEdge(0, 1)\n    g.addEdge(0, 2)\n    g.addEdge(1, 2)\n    g.addEdge(2, 0)\n    g.addEdge(2, 3)\n    g.addEdge(3, 3)\n    fmt.Println("Breadth First Traversal starting from vertex 2:")\n    g.BFS(2)\n}`,
+            `package main\n\nimport "fmt"\n\ntype TrieNode struct {\n    children map[rune]*TrieNode\n    isEnd    bool\n}\n\ntype Trie struct {\n    root *TrieNode\n}\n\nfunc NewTrieNode() *TrieNode {\n    return &TrieNode{children: make(map[rune]*TrieNode)}\n}\n\nfunc NewTrie() *Trie {\n    return &Trie{root: NewTrieNode()}\n}\n\nfunc (t *Trie) Insert(word string) {\n    node := t.root\n    for _, ch := range word {\n        if _, ok := node.children[ch]; !ok {\n            node.children[ch] = NewTrieNode()\n        }\n        node = node.children[ch]\n    }\n    node.isEnd = true\n}\n\nfunc (t *Trie) Search(word string) bool {\n    node := t.root\n    for _, ch := range word {\n        if _, ok := node.children[ch]; !ok {\n            return false\n        }\n        node = node.children[ch]\n    }\n    return node.isEnd\n}\n\nfunc (t *Trie) StartsWith(prefix string) bool {\n    node := t.root\n    for _, ch := range prefix {\n        if _, ok := node.children[ch]; !ok {\n            return false\n        }\n        node = node.children[ch]\n    }\n    return true\n}\n\nfunc main() {\n    trie := NewTrie()\n    words := []string{"apple", "app", "banana", "bat", "bath"}\n    for _, word := range words {\n        trie.Insert(word)\n    }\n    fmt.Println("Search 'app':", trie.Search("app"))\n    fmt.Println("Search 'appl':", trie.Search("appl"))\n    fmt.Println("StartsWith 'ban':", trie.StartsWith("ban"))\n    fmt.Println("StartsWith 'ba':", trie.StartsWith("ba"))\n}`,
+            `package main\n\nimport (\n    "container/list"\n    "fmt"\n)\n\ntype LRUCache struct {\n    capacity int\n    cache    map[int]int\n    order    *list.List\n}\n\nfunc NewLRUCache(capacity int) *LRUCache {\n    return &LRUCache{\n        capacity: capacity,\n        cache:    make(map[int]int),\n        order:    list.New(),\n    }\n}\n\nfunc (l *LRUCache) Get(key int) int {\n    if value, ok := l.cache[key]; ok {\n        l.order.Remove(l.order.Back())\n        l.order.PushFront(key)\n        return value\n    }\n    return -1\n}\n\nfunc (l *LRUCache) Put(key int, value int) {\n    if _, ok := l.cache[key]; ok {\n        l.order.Remove(l.order.Back())\n    } else if l.order.Len() == l.capacity {\n        oldest := l.order.Remove(l.order.Back()).(int)\n        delete(l.cache, oldest)\n    }\n    l.cache[key] = value\n    l.order.PushFront(key)\n}\n\nfunc main() {\n    lru := NewLRUCache(2)\n    lru.Put(1, 1)\n    lru.Put(2, 2)\n    fmt.Println(lru.Get(1)) // returns 1\n    lru.Put(3, 3) // evicts key 2\n    fmt.Println(lru.Get(2)) // returns -1 (not found)\n    lru.Put(4, 4) // evicts key 1\n    fmt.Println(lru.Get(1)) // returns -1 (not found)\n    fmt.Println(lru.Get(3)) // returns 3\n    fmt.Println(lru.Get(4)) // returns 4\n}`,
+            `package main\n\nimport (\n\t"database/sql"\n\t"fmt"\n\t"log"\n\n\t_ "github.com/go-sql-driver/mysql"\n)\n\nfunc main() {\n\t// Open database connection\n\tdb, err := sql.Open("mysql", "user:password@tcp(127.0.0.1:3306)/mydatabase")\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer db.Close()\n\n\t// Execute query\n\trows, err := db.Query("SELECT * FROM mytable")\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer rows.Close()\n\n\t// Print results\n\tfor rows.Next() {\n\t\tvar column1 string\n\t\tvar column2 string\n\t\tif err := rows.Scan(&column1, &column2); err != nil {\n\t\t\tlog.Fatal(err)\n\t\t}\n\t\tfmt.Println(column1, column2)\n\t}\n\tif err := rows.Err(); err != nil {\n\t\tlog.Fatal(err)\n\t}\n}`,
+            `package main\n\nimport (\n\t"bufio"\n\t"fmt"\n\t"log"\n\t"os"\n)\n\nfunc main() {\n\tfile, err := os.Open("example.txt")\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer file.Close()\n\n\tscanner := bufio.NewScanner(file)\n\tfor scanner.Scan() {\n\t\tfmt.Println(scanner.Text())\n\t}\n\n\tif err := scanner.Err(); err != nil {\n\t\tlog.Fatal(err)\n\t}\n\n\tf, err := os.OpenFile("example.txt", os.O_APPEND|os.O_WRONLY, 0644)\n\tif err != nil {\n\t\tlog.Fatal(err)\n\t}\n\tdefer f.Close()\n\n\tif _, err := f.WriteString("New line of text.\\n"); err != nil {\n\t\tlog.Fatal(err)\n\t}\n}`,
+            `package main\n\nimport (\n\t"fmt"\n)\n\nfunc main() {\n\tpeople := map[string]int{\n\t\t"John": 30,\n\t\t"Anna": 25,\n\t\t"Mike": 32,\n\t}\n\n\tfor name, age := range people {\n\t\tfmt.Printf("%s is %d years old.\\n", name, age)\n\t}\n}`
+            ],
+        hard: [
+            `package main\n\nimport (\n    "bufio"\n    "fmt"\n    "os"\n    "strconv"\n    "strings"\n)\n\nvar accounts = make(map[string]float64)\n\nfunc main() {\n    reader := bufio.NewReader(os.Stdin)\n    for {\n        fmt.Println("Welcome to the Simple Banking App!")\n        fmt.Println("1. Create account")\n        fmt.Println("2. Deposit money")\n        fmt.Println("3. Withdraw money")\n        fmt.Println("4. Check balance")\n        fmt.Println("5. Exit")\n        fmt.Print("Choose an option: ")\n        choiceStr, _ := reader.ReadString('\\n')\n        choice, _ := strconv.Atoi(strings.TrimSpace(choiceStr))\n        switch choice {\n        case 1:\n            createAccount(reader)\n        case 2:\n            depositMoney(reader)\n        case 3:\n            withdrawMoney(reader)\n        case 4:\n            checkBalance(reader)\n        case 5:\n            fmt.Println("Goodbye!")\n            return\n        default:\n            fmt.Println("Invalid option. Please try again.")\n        }\n    }\n}\n\nfunc createAccount(reader *bufio.Reader) {\n    fmt.Print("Enter account name: ")\n    name, _ := reader.ReadString('\\n')\n    name = strings.TrimSpace(name)\n    if _, exists := accounts[name]; exists {\n        fmt.Println("Account already exists.")\n    } else {\n        accounts[name] = 0.0\n        fmt.Println("Account created successfully.")\n    }\n}\n\nfunc depositMoney(reader *bufio.Reader) {\n    fmt.Print("Enter account name: ")\n    name, _ := reader.ReadString('\\n')\n    name = strings.TrimSpace(name)\n    if _, exists := accounts[name]; exists {\n        fmt.Print("Enter amount to deposit: ")\n        amountStr, _ := reader.ReadString('\\n')\n        amount, _ := strconv.ParseFloat(strings.TrimSpace(amountStr), 64)\n        accounts[name] += amount\n        fmt.Println("Deposit successful.")\n    } else {\n        fmt.Println("Account does not exist.")\n    }\n}\n\nfunc withdrawMoney(reader *bufio.Reader) {\n    fmt.Print("Enter account name: ")\n    name, _ := reader.ReadString('\\n')\n    name = strings.TrimSpace(name)\n    if balance, exists := accounts[name]; exists {\n        fmt.Print("Enter amount to withdraw: ")\n        amountStr, _ := reader.ReadString('\\n')\n        amount, _ := strconv.ParseFloat(strings.TrimSpace(amountStr), 64)\n        if balance >= amount {\n            accounts[name] -= amount\n            fmt.Println("Withdrawal successful.")\n        } else {\n            fmt.Println("Insufficient funds.")\n        }\n    } else {\n        fmt.Println("Account does not exist.")\n    }\n}\n\nfunc checkBalance(reader *bufio.Reader) {\n    fmt.Print("Enter account name: ")\n    name, _ := reader.ReadString('\\n')\n    name = strings.TrimSpace(name)\n    if balance, exists := accounts[name]; exists {\n        fmt.Println("Balance:", balance)\n    } else {\n        fmt.Println("Account does not exist.")\n    }\n}`,
+            `package main\n\nimport (\n    "fmt"\n    "math/rand"\n    "time"\n)\n\nvar responses = []string{\n    "That's interesting! Tell me more.",\n    "Why do you think that?",\n    "How does that make you feel?",\n    "What do you mean by that?",\n    "Can you explain further?",\n    "I see. And then what happened?",\n    "How do you feel about that?",\n    "That sounds fascinating!",\n    "Could you give me an example?",\n    "That's quite a story!",\n}\n\nfunc main() {\n    rand.Seed(time.Now().UnixNano())\n    fmt.Println("Hello! I am a simple chatbot. Type 'exit' to end the conversation.")\n    for {\n        fmt.Print("You: ")\n        var input string\n        fmt.Scanln(&input)\n        if input == "exit" {\n            fmt.Println("Goodbye!")\n            break\n        }\n        response := generateResponse()\n        fmt.Println("Chatbot:", response)\n    }\n}\n\nfunc generateResponse() string {\n    index := rand.Intn(len(responses))\n    return responses[index]\n}`,
+            `package main\n\nimport (\n    "database/sql"\n    "fmt"\n    _ "github.com/lib/pq"\n)\n\nconst (\n    host     = "localhost"\n    port     = 5432\n    user     = "dbuser"\n    password = "dbpassword"\n    dbname   = "testdb"\n)\n\nfunc main() {\n    psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",\n        host, port, user, password, dbname)\n    db, err := sql.Open("postgres", psqlInfo)\n    if err != nil {\n        panic(err)\n    }\n    defer db.Close()\n\n    err = db.Ping()\n    if err != nil {\n        panic(err)\n    }\n\n    fmt.Println("Successfully connected!")\n\n    // Create table\n    createTableSQL := ` + "`" + `CREATE TABLE IF NOT EXISTS users (\n        id SERIAL PRIMARY KEY,\n        name TEXT NOT NULL,\n        email TEXT NOT NULL\n    );` + "`" + `\n    _, err = db.Exec(createTableSQL)\n    if err != nil {\n        panic(err)\n    }\n    fmt.Println("Table created successfully")\n\n    // Insert data\n    insertSQL := ` + "`" + `INSERT INTO users (name, email) VALUES ('John Doe', 'john.doe@example.com');` + "`" + `\n    _, err = db.Exec(insertSQL)\n    if err != nil {\n        panic(err)\n    }\n    fmt.Println("Data inserted successfully")\n\n    // Query data\n    rows, err := db.Query("SELECT id, name, email FROM users")\n    if err != nil {\n        panic(err)\n    }\n    defer rows.Close()\n    fmt.Println("ID | NAME | EMAIL")\n    for rows.Next() {\n        var id int\n        var name, email string\n        err = rows.Scan(&id, &name, &email)\n        if err != nil {\n            panic(err)\n        }\n        fmt.Printf("%d | %s | %s\\n", id, name, email)\n    }\n\n    // Update data\n    updateSQL := ` + "`" + `UPDATE users SET email = 'new.email@example.com' WHERE name = 'John Doe';` + "`" + `\n    _, err = db.Exec(updateSQL)\n    if err != nil {\n        panic(err)\n    }\n    fmt.Println("Data updated successfully")\n\n    // Delete data\n    deleteSQL := ` + "`" + `DELETE FROM users WHERE name = 'John Doe';` + "`" + `\n    _, err = db.Exec(deleteSQL)\n    if err != nil {\n        panic(err)\n    }\n    fmt.Println("Data deleted successfully")\n}`
+        ]
+    }
+};
 
 let startTime;
 let stopTime;
@@ -13,46 +193,69 @@ let typedText = '';
 let errorEncountered = false;
 let errorIndex = -1;
 
-const sentences = [
-    "This is a typing test.",
-    "Type this text as fast as you can.",
-    "Practice makes perfect.",
-    "Improve your typing speed.",
-    "The quick brown fox jumps over the lazy dog.",
-    "JavaScript is a versatile programming language.",
-    "Coding can be fun and challenging.",
-    "Consistency is key to improvement.",
-    "Stay focused and keep practicing.",
-    "Errors help you learn and grow."
-];
 
-function getRandomSentence() {
-    const randomIndex = Math.floor(Math.random() * sentences.length);
-    return sentences[randomIndex];
+
+const specialKeys = {
+    "Enter": "\n",
+    "Tab": "    "
+};
+
+const shiftKeyMap = {
+    ",": "<",
+    ".": ">",
+    "1": "!",
+    "2": "@",
+    "3": "#",
+    "4": "$",
+    "5": "%",
+    "6": "^",
+    "7": "&",
+    "8": "*",
+    "9": "(",
+    "0": ")",
+    "[": "{",
+    "]": "}",
+    "-": "_"
+};
+
+function getRandomCodeChunk() {
+    const language = languageSelect.value;
+    const difficulty = difficultySelect.value;
+
+    const chunks = codeChunks[language][difficulty];
+    const randomIndex = Math.floor(Math.random() * chunks.length);
+    return chunks[randomIndex];
 }
 
-function displayNewSentence() {
-    const newSentence = getRandomSentence();
-    textToTypeElement.textContent = newSentence;
-    textArray = newSentence.split(''); // Set textArray at the beginning
+function displayNewCodeChunk() {
+    const newCodeChunk = getRandomCodeChunk();
+    textToTypeElement.textContent = newCodeChunk;
+    textArray = newCodeChunk.split('');
     typedText = '';
     errorEncountered = false;
     errorIndex = -1;
     startTime = null;
     stopTime = null;
     clearInterval(timer);
-    wpmDisplay.textContent = 'WPM: 0';
-    accuracyDisplay.textContent = 'Accuracy: 0%';
+    cpmDisplay.textContent = 'CPM: 0';
+    accuracyDisplay.textContent= `Completion: 0%`;
     updateTextDisplay();
     updateCursorPosition();
 }
 
 function startTypingTest(event) {
-    const char = event.key;
+    let char = event.key;
 
-    // Only process single character keys and backspace
-    if (char.length > 1 && char !== 'Backspace') {
+    if (char == "Shift")
         return;
+
+    if (char in specialKeys) {
+        char = specialKeys[char];
+        if (char === "    ") {
+            event.preventDefault(); // Prevent the default Tab behavior of focusing the next element
+        }
+    } else if (event.shiftKey && char in shiftKeyMap) {
+        char = shiftKeyMap[char];
     }
 
     if (!startTime) {
@@ -62,7 +265,6 @@ function startTypingTest(event) {
 
     if (errorEncountered) {
         if (char === 'Backspace') {
-            // Ensure the backspace operation stops at the error point
             if (typedText.length > errorIndex) {
                 typedText = typedText.slice(0, errorIndex);
             }
@@ -75,7 +277,8 @@ function startTypingTest(event) {
                 typedText = typedText.slice(0, -1);
             }
         } else {
-            if (char === textArray[typedText.length]) {
+            if (char === textArray[typedText.length] || 
+                (char === '    ' && textArray.slice(typedText.length, typedText.length + 4).join('') === '    ')) {
                 typedText += char;
                 if (typedText.length === textArray.length) {
                     stopTime = new Date().getTime();
@@ -85,6 +288,7 @@ function startTypingTest(event) {
             } else {
                 errorEncountered = true;
                 errorIndex = typedText.length;
+                updateTextDisplay(); // Show the error immediately
             }
         }
     }
@@ -92,17 +296,40 @@ function startTypingTest(event) {
     updateCursorPosition();
 }
 
-function calculateResults() {
-    if (!stopTime) {
-        stopTime = new Date().getTime();
+function updateTextDisplay() {
+    let displayText = '';
+
+    typedText.split('').forEach((char, index) => {
+        displayText += `<span class="correct">${char}</span>`;
+    });
+
+    if (errorEncountered && typedText.length < textArray.length) {
+        const nextChar = textArray[typedText.length];
+        if (nextChar === ' ') {
+            displayText += `<span class="incorrect-space"></span>`;
+        } else if (nextChar === '\n') {
+            displayText += `<span class="incorrect-next-line"> \n</span>`;
+        } else {
+            displayText += `<span class="incorrect">${nextChar}</span>`;
+        }
+        displayText += textArray.slice(typedText.length + 1).join('');
+    } else {
+        displayText += textArray.slice(typedText.length).join('');
     }
+
+    textToTypeElement.innerHTML = displayText;
+}
+
+function calculateResults() {
+    stopTime = new Date().getTime();
+
     const elapsedTime = (stopTime - startTime) / 1000 / 60; // minutes
     const wordsTyped = typedText.split(' ').length;
-    const wpm = Math.round(wordsTyped / elapsedTime);
+    console.log(elapsedTime);
+    const cpm = Math.min(Math.round(typedText.length / elapsedTime), 8192);
     const accuracy = calculateAccuracy(typedText);
-
-    wpmDisplay.textContent = `WPM: ${wpm}`;
-    accuracyDisplay.textContent = `Accuracy: ${accuracy}%`;
+    cpmDisplay.textContent = `CPM: ${cpm}`;
+    accuracyDisplay.textContent= `Completion: ${accuracy}%`;
 }
 
 function calculateAccuracy(typedText) {
@@ -117,126 +344,33 @@ function calculateAccuracy(typedText) {
     return Math.round((correctCharacters / textArray.length) * 100);
 }
 
-function updateTextDisplay() {
-    let displayText = '';
+function updateCursorPosition() {
+    // Create a temporary hidden element to measure the line height
+    const tempElement = document.createElement('div');
+    tempElement.style.position = 'absolute';
+    tempElement.style.visibility = 'hidden';
+    tempElement.style.whiteSpace = 'nowrap';
+    tempElement.textContent = 'A';
+    textToTypeElement.appendChild(tempElement);
 
-    typedText.split('').forEach((char, index) => {
-        displayText += `<span class="correct">${char}</span>`;
-    });
+    // Get the computed line height of the temporary element
+    const singleLineHeight = tempElement.getBoundingClientRect().height;
+    textToTypeElement.removeChild(tempElement);
 
-    if (errorEncountered && typedText.length < textArray.length) {
-        const nextChar = textArray[typedText.length];
-        if (nextChar === ' ') {
-            displayText += `<span class="incorrect-space"></span>`;
-        } else {
-            displayText += `<span class="incorrect">${nextChar}</span>`;
-        }
-        displayText += textArray.slice(typedText.length + 1).join('');
-    } else {
-        displayText += textArray.slice(typedText.length).join('');
-    }
+    const lines = typedText.split('\n');
+    const currentLineIndex = lines.length - 1;
+    const currentLineText = lines[currentLineIndex];
+    const textElementStyle = getComputedStyle(textToTypeElement);
+    const currentLineWidth = getTextWidth(currentLineText, textElementStyle.font);
 
-    textToTypeElement.innerHTML = displayText;
+    cursor.style.top = `${currentLineIndex * singleLineHeight + 10}px`;
+    hiddenInput.style.top = `${currentLineIndex * singleLineHeight + 10}px`;
+    cursor.style.left = `${currentLineWidth + 10}px`;
+    hiddenInput.style.left = `${currentLineWidth + 10}px`;
+
+    autoScroll();
 }
 
-function updateCursorPosition() {
-
-    const textElementWidth = textToTypeElement.clientWidth;
-    
-    //const singleLineHeight = getTextHeight('A', window.getComputedStyle(textToTypeElement).font);
-    const singleLineHeight = 60;
-
-    // Get the current word the user is typing
-    const words = typedText.split(' ');
-    const currentWord = words[words.length - 1];
-    
-    // Get the part of the text up to the current word
-    /*
-    console.log("");
-    console.log(typedText);
-    console.log(currentWord);
-    console.log(typedText.slice(0, typedText.length-currentWord.length-1));
-    console.log(textArray);
-    console.log(textArray.slice(0, words.length - 1).join(''));
-    */
-    textUpToCurrentWord = typedText;
-
-    if(typedText == "undefined") {
-        textUpToCurrentWord = "";
-    }
-
-    for(let i = typedText.length; i<textArray.length; ++i) {
-        if(textArray[i] == " ")
-            break;
-        else
-            textUpToCurrentWord += textArray[i];
-    }
-
-    // Calculate lines based on the full text up to the current word
-    const lines = calculateLines(textUpToCurrentWord, window.getComputedStyle(textToTypeElement).font, textElementWidth);
-    console.log(textElementWidth);
-    console.log(textUpToCurrentWord);
-    console.log(lines);
-
-    if (lines.length > 1) {
-        // The text has wrapped to new lines
-        const currentLineIndex = lines.length - 1;
-        //const currentLineText = lines[currentLineIndex].slice(-(count - currentWord.length-1));
-        count = 0;
-
-        console.log(lines);
-
-        for(i = 0; i<lines.length-1; ++i) {
-            count+=lines[i].length;
-            count+=1;
-        }
-
-        const currentLineText = typedText.slice(count);
-        console.log(currentLineText);
-
-        const currentLineWidth = getTextWidth(currentLineText, window.getComputedStyle(textToTypeElement).font);
-        cursor.style.top = `${currentLineIndex * singleLineHeight+50}px`;
-        hiddenInput.style.top = `${currentLineIndex * singleLineHeight+50}px`;
-        cursor.style.left = `${currentLineWidth}px`;
-        hiddenInput.style.left = `${currentLineWidth - 25}px`;
-    } else {
-        // The text is in a single line
-        const typedTextWidth = getTextWidth(typedText, window.getComputedStyle(textToTypeElement).font);
-        cursor.style.top = `50px`;
-        hiddenInput.style.top = `50px`;
-        cursor.style.left = `${typedTextWidth}px`;
-        hiddenInput.style.left = `${typedTextWidth - 25}px`;
-    }
-}
-
-/*
-function updateCursorPosition() {
-    const textElementWidth = textToTypeElement.clientWidth;
-    //const singleLineHeight = getTextHeight('A', window.getComputedStyle(textToTypeElement).font);
-    const singleLineHeight = 55;
-    const lines = calculateLines(typedText, window.getComputedStyle(textToTypeElement).font, textElementWidth);
-    
-    if (lines.length > 1) {
-        // The text has wrapped to new lines
-        const currentLineIndex = lines.length - 1;
-        const currentLineText = lines[currentLineIndex];
-        const currentLineWidth = getTextWidth(currentLineText, window.getComputedStyle(textToTypeElement).font);
-        console.log(currentLineText);
-        cursor.style.top = `${currentLineIndex * singleLineHeight+50}px`;
-        hiddenInput.style.top = `${currentLineIndex * singleLineHeight+50}px`;
-        cursor.style.left = `${currentLineWidth}px`;
-        hiddenInput.style.left = `${currentLineWidth - 25}px`;
-    } else {
-        // The text is in a single line
-        const typedTextWidth = getTextWidth(typedText, window.getComputedStyle(textToTypeElement).font);
-        cursor.style.top = `50px`;
-        hiddenInput.style.top = `50px`;
-        cursor.style.left = `${typedTextWidth}px`;
-        hiddenInput.style.left = `${typedTextWidth - 25}px`;
-    }
-}*/
-
-// Helper function to calculate the width of the text
 function getTextWidth(text, font) {
     const canvas = document.createElement('canvas');
     const context = canvas.getContext('2d');
@@ -245,46 +379,36 @@ function getTextWidth(text, font) {
     return metrics.width;
 }
 
-// Helper function to calculate the height of the text
-function getTextHeight(text, font) {
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    context.font = font;
-    const metrics = context.measureText(text);
-    return metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+function autoScroll() {
+    const cursorRect = cursor.getBoundingClientRect();
+    const containerRect = testTextElement.getBoundingClientRect();
+    const scrollPadding = 100; // Adjust this value for more or less padding
+
+    if (cursorRect.bottom > containerRect.bottom - scrollPadding) {
+        testTextElement.scrollTop += cursorRect.bottom - containerRect.bottom + scrollPadding;
+    } else if (cursorRect.top < containerRect.top + scrollPadding) {
+        testTextElement.scrollTop -= containerRect.top - cursorRect.top + scrollPadding;
+    }
+
+    if (cursorRect.right > containerRect.right - scrollPadding) {
+        testTextElement.scrollLeft += cursorRect.right - containerRect.right + scrollPadding;
+    } else if (cursorRect.left < containerRect.left + scrollPadding) {
+        testTextElement.scrollLeft -= containerRect.left - cursorRect.left + scrollPadding;
+    }
 }
 
-// Helper function to calculate the lines of text based on width
-function calculateLines(text, font, maxWidth) {
-    const words = text.split(' ');
-    const lines = [];
-    let currentLine = '';
-
-    words.forEach(word => {
-        testLine = currentLine + word + ' ';
-        const testWidth = getTextWidth(testLine.trim(), font);
- 
-        if (testWidth > maxWidth && currentLine.length > 0) {
-            lines.push(currentLine.trim());
-            currentLine = word + ' ';
-        } else {
-            currentLine = testLine;
-        }
-    });
-    lines.push(currentLine.trim());
-    return lines;
-}
-
-// Ensure the input is focused when the user clicks anywhere in the container
-document.querySelector('.container').addEventListener('click', () => {
-    hiddenInput.focus();
+document.querySelector('.container').addEventListener('click', (event) => {
+    if (event.target.tagName.toLowerCase() !== 'select') {
+        hiddenInput.focus();
+    }
 });
 
-// Ensure cursor is updated on window resize
 window.addEventListener('resize', updateCursorPosition);
 
-newTextBtn.addEventListener('click', displayNewSentence);
+newTextBtn.addEventListener('click', displayNewCodeChunk);
 hiddenInput.addEventListener('keydown', startTypingTest);
 
-// Display the initial sentence
-displayNewSentence();
+difficultySelect.addEventListener('change', displayNewCodeChunk);
+languageSelect.addEventListener('change', displayNewCodeChunk);
+
+displayNewCodeChunk();
