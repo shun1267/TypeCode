@@ -174,6 +174,9 @@ function updateCursorPosition() {
 
     // Calculate lines based on the full text up to the current word
     const lines = calculateLines(textUpToCurrentWord, window.getComputedStyle(textToTypeElement).font, textElementWidth);
+    console.log(textElementWidth);
+    console.log(textUpToCurrentWord);
+    console.log(lines);
 
     if (lines.length > 1) {
         // The text has wrapped to new lines
@@ -258,8 +261,9 @@ function calculateLines(text, font, maxWidth) {
     let currentLine = '';
 
     words.forEach(word => {
-        const testLine = currentLine + word + ' ';
-        const testWidth = getTextWidth(testLine, font);
+        testLine = currentLine + word + ' ';
+        const testWidth = getTextWidth(testLine.trim(), font);
+ 
         if (testWidth > maxWidth && currentLine.length > 0) {
             lines.push(currentLine.trim());
             currentLine = word + ' ';
