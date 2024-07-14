@@ -249,17 +249,15 @@ function startTypingTest(event) {
     
     if (char == "Shift")
         return;
-    if (char == "Shift[")
-        char = "[";
 
     if (char in specialKeys) {
         char = specialKeys[char];
         if (char === "    ") {
             event.preventDefault(); // Prevent the default Tab behavior of focusing the next element
         }
-    } else if (event.shiftKey && char in shiftKeyMap) {
+    } /*else if (event.shiftKey && char in shiftKeyMap) {
         char = shiftKeyMap[char];
-    }
+    }*/
 
     if (!startTime) {
         startTime = new Date().getTime();
