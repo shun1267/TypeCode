@@ -23,7 +23,7 @@ body {
     align-items: center;
     justify-content: center;
     width: calc(50% + 100px);
-    height: calc(100% - 40px); /* Adjusted height to account for the title */
+    height: 100%; /* Adjusted height to account for the title */
     padding: 20px;
     box-sizing: border-box;
     border-radius: 10px; /* Add border radius for better aesthetics */
@@ -50,6 +50,10 @@ body {
 
 /* Media query for narrow screens */
 @media (max-width: 600px) {
+    .container {
+        justify-content: start;
+    }
+
     .top-right {
         flex-direction: column; /* Switch to column on narrow screens */
     }
