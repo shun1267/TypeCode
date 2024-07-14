@@ -244,7 +244,12 @@ function displayNewCodeChunk() {
 }
 
 function startTypingTest(event) {
+
+
+
     let char = event.key;
+    
+    newTextBtn.innerHTML = char;
 
     if (char == "Shift")
         return;
